@@ -13,8 +13,7 @@ namespace SmolKnight
         internal static SmolKnight Instance;
 
         public float currentScale = 0.5f;
-        public DateTime lastAnimTime = DateTime.Now;
-        public bool animating = false;
+
         public override string GetVersion()
         {
             return "v1.0";
