@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using GlobalEnums;
 using Modding;
 using UnityEngine;
 
@@ -23,10 +21,10 @@ namespace SmolKnight
         {
             Instance = this;
 
-            ModHooks.Instance.HeroUpdateHook += smol;
-            ModHooks.Instance.AfterTakeDamageHook += updateSize;
-            ModHooks.Instance.AfterPlayerDeadHook += AfterPlayerDied;
-            ModHooks.Instance.SceneChanged += SceneLoaded;
+            ModHooks.HeroUpdateHook += smol;
+            ModHooks.AfterTakeDamageHook += updateSize;
+            ModHooks.AfterPlayerDeadHook += AfterPlayerDied;
+            ModHooks.SceneChanged += SceneLoaded;
 
         }
         public void SceneLoaded(string targetScene){

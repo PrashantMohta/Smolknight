@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SmolKnight</RootNamespace>
     <AssemblyName>SmolKnight</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -40,7 +40,7 @@
   <ItemGroup>
     <Reference Include="System.Core" />
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\HollowKnight.Modding\OutputFinal\hollow_knight_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\HollowKnight.Modding\OutputFinal\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>.\Vanilla\UnityEngine.dll</HintPath>
