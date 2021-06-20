@@ -48,6 +48,9 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>.\Vanilla\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="PlayMaker, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>.\Vanilla\PlayMaker.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Smolknight.cs" />
