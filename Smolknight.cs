@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Reflection;
+using System.Collections;
+using System.Collections.Generic;
 using GlobalEnums;
 using Modding;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
 namespace SmolKnight
 {
@@ -26,10 +30,43 @@ namespace SmolKnight
         public override void Initialize()
         {
             Instance = this;
+
+            ShineyItems.Add("Fungus2_14",19.3f); // Mantis Claw
+            ShineyItems.Add("Ruins1_30",49.3f); // Spell Twister
+            ShineyItems.Add("Deepnest_32",2.2f); // Pale Ore
+            ShineyItems.Add("Hive_05",12.0f);  // Hive Blood
+            ShineyItems.Add("Room_Wyrm",6.9f); // Kings Brand
+            ShineyItems.Add("RestingGrounds_10",17.1f); // Soul Eater
+            ShineyItems.Add("Mines_11",39.5f); // ShopKeeper's Key
+            ShineyItems.Add("Fungus3_39",35f); // Love Key
+            ShineyItems.Add("Abyss_17",14.2f);  // Pale Ore 
+
             ModHooks.Instance.HeroUpdateHook += heroUpdate;
             On.HeroController.FaceLeft += FaceLeft;
             On.HeroController.FaceRight += FaceRight;
             On.HutongGames.PlayMaker.Actions.SetScale.DoSetScale += DoSetScale;
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += FixSceneSpecificThings;
+        }
+
+        private Dictionary<string,float> ShineyItems = new Dictionary<string,float>();
+
+        private IEnumerator FixShinyItemStand(Scene scene){
+            yield return null;
+            float ShineyPos;
+            if (ShineyItems.TryGetValue(scene.name, out ShineyPos))
+            {
+                var Shiney = GameObject.Find("Shiny Item Stand");
+                if(Shiney == null){
+                    this.Log("Shiny not found in scene : " + scene.name);
+                } else {
+                    var pos = Shiney.transform.position;
+                        pos.y = ShineyPos;
+                        Shiney.transform.position  = pos;
+                }
+            } 
+        }
+        public void FixSceneSpecificThings(Scene scene,LoadSceneMode mode){
+            GameManager.instance.StartCoroutine(FixShinyItemStand(scene));
         }
 
         public void smol(Transform transform)
