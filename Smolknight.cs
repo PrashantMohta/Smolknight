@@ -7,11 +7,52 @@ using Modding;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using HutongGames.PlayMaker;
+using HutongGames.PlayMaker.Actions;
 
 
 namespace SmolKnight
 {
-    
+    public static class Utils {
+
+        public static FsmStateAction _GetAction(PlayMakerFSM fsm, string stateName, int index)
+        {
+            foreach (FsmState t in fsm.FsmStates)
+            {
+                if (t.Name != stateName) continue;
+                FsmStateAction[] actions = t.Actions;
+
+                Array.Resize(ref actions, actions.Length + 1);
+
+                return actions[index];
+            }
+
+            return null;
+        }
+
+        public static T _GetAction<T>(PlayMakerFSM fsm, string stateName, int index) where T : FsmStateAction
+        {
+            return GetAction(fsm, stateName, index) as T;
+        }
+        public static FsmStateAction GetAction(this PlayMakerFSM fsm, string stateName, int index) =>
+            Utils._GetAction(fsm, stateName, index);
+
+        public static T GetAction<T>(this PlayMakerFSM fsm, string stateName, int index) where T : FsmStateAction =>
+            Utils._GetAction<T>(fsm, stateName, index); 
+
+        public static GameObject FindGameObjectInChildren( this GameObject gameObject, string name )
+        {
+            if( gameObject == null )
+                return null;
+
+            foreach( var t in gameObject.GetComponentsInChildren<Transform>( true ) )
+            {
+                if( t.name == name )
+                    return t.gameObject;
+            }
+            return null;
+        }
+    }   
     public class SmolKnight : Mod
     {
 
@@ -69,6 +110,102 @@ namespace SmolKnight
             GameManager.instance.StartCoroutine(FixShinyItemStand(scene));
         }
 
+        public void setVignette(float factor){
+            
+            var fsm = HeroController.instance.transform.Find("Vignette").gameObject.LocateMyFSM("Darkness Control");
+            if(fsm == null){
+                this.Log("no fsm");
+            }
+
+            if(false && fsm.ActiveStateName == "Normal" || fsm.ActiveStateName == "Normal 2"){
+                fsm.FsmVariables.FindFsmVector3("Damage Scale").Value = new Vector2(4f * factor,4f * factor);
+                fsm.FsmVariables.FindFsmVector3("Idle Scale").Value = new Vector2(5.5f * factor,5.5f * factor);
+            }
+            
+            fsm.GetAction<SetVector3XYZ>("Dark -1", 1).x.Value = 10.5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark -1", 1).y.Value = 10.5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark -1", 1).z.Value = 10.5f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark -1", 2).x.Value = 5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark -1", 2).y.Value = 5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark -1", 2).z.Value = 5f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark -1 2", 0).x.Value = 10.5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark -1 2", 0).y.Value = 10.5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark -1 2", 0).z.Value = 10.5f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark -1 2", 1).x.Value = 5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark -1 2", 1).y.Value = 5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark -1 2", 1).z.Value = 5f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Normal", 1).x.Value = 5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Normal", 1).y.Value = 5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Normal", 1).z.Value = 5f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Normal", 3).x.Value = 4f * factor;
+            fsm.GetAction<SetVector3XYZ>("Normal", 3).y.Value = 4f * factor;
+            fsm.GetAction<SetVector3XYZ>("Normal", 3).z.Value = 4f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Normal 2", 1).x.Value = 5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Normal 2", 1).y.Value = 5f * factor;
+            fsm.GetAction<SetVector3XYZ>("Normal 2", 1).z.Value = 5f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Normal 2", 2).x.Value = 4f * factor;
+            fsm.GetAction<SetVector3XYZ>("Normal 2", 2).y.Value = 4f * factor;
+            fsm.GetAction<SetVector3XYZ>("Normal 2", 2).z.Value = 4f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark 1", 1).x.Value = 2.2f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 1", 1).y.Value = 2.2f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 1", 1).z.Value = 2.2f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark 1", 2).x.Value = 1.9f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 1", 2).y.Value = 1.9f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 1", 2).z.Value = 1.9f * factor;
+
+
+            fsm.GetAction<SetVector3XYZ>("Dark 1 2", 1).x.Value = 2.2f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 1 2", 1).y.Value = 2.2f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 1 2", 1).z.Value = 2.2f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark 1 2", 2).x.Value = 1.9f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 1 2", 2).y.Value = 1.9f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 1 2", 2).z.Value = 1.9f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark 2", 1).x.Value = 0.8f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 2", 1).y.Value = 0.8f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 2", 1).z.Value = 0.8f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark 2", 2).x.Value = 0.8f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 2", 2).y.Value = 0.8f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 2", 2).z.Value = 0.8f * factor;
+
+
+            fsm.GetAction<SetVector3XYZ>("Dark 2 2", 1).x.Value = 0.8f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 2 2", 1).y.Value = 0.8f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 2 2", 1).z.Value = 0.8f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Dark 2 2", 2).x.Value = 0.8f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 2 2", 2).y.Value = 0.8f * factor;
+            fsm.GetAction<SetVector3XYZ>("Dark 2 2", 2).z.Value = 0.8f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Lantern", 0).x.Value = 3f * factor;
+            fsm.GetAction<SetVector3XYZ>("Lantern", 0).y.Value = 3f * factor;
+            fsm.GetAction<SetVector3XYZ>("Lantern", 0).z.Value = 3f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Lantern", 2).x.Value = 2.2f * factor;
+            fsm.GetAction<SetVector3XYZ>("Lantern", 2).y.Value = 2.2f * factor;
+            fsm.GetAction<SetVector3XYZ>("Lantern", 2).z.Value = 2.2f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Lantern 2", 0).x.Value = 3f * factor;
+            fsm.GetAction<SetVector3XYZ>("Lantern 2", 0).y.Value = 3f * factor;
+            fsm.GetAction<SetVector3XYZ>("Lantern 2", 0).z.Value = 3f * factor;
+
+            fsm.GetAction<SetVector3XYZ>("Lantern 2", 2).x.Value = 2.2f * factor;
+            fsm.GetAction<SetVector3XYZ>("Lantern 2", 2).y.Value = 2.2f * factor;
+            fsm.GetAction<SetVector3XYZ>("Lantern 2", 2).z.Value = 2.2f * factor;
+
+        }
+
         public void smol(Transform transform)
         {
             var localScale = transform.localScale;
@@ -85,6 +222,16 @@ namespace SmolKnight
             if (localScale.x != x || localScale.y != y) { 
                 transform.localScale = new Vector3(x, y, 1f);
             }
+
+            //if we need to increase the light 
+            //var LightControl = transform.Find("HeroLight").gameObject.LocateMyFSM("HeroLight Control");
+            //LightControl.FsmVariables.FindFsmVector3("Damage Scale").Value = new Vector2(1.5f * 1.5f,1.5f * 1.5f);
+            //LightControl.FsmVariables.FindFsmVector3("Idle Scale").Value = new Vector2(3f * 1.5f,3f * 1.5f);
+
+            if(!transform.gameObject.name.StartsWith("Player Container")){
+                setVignette(2f);
+            }      
+
         }
         public void normal(Transform transform)
         {
@@ -103,6 +250,9 @@ namespace SmolKnight
                 transform.localScale = new Vector3(x, y, 1f);
             }
 
+            if(!transform.gameObject.name.StartsWith("Player Container")){
+                setVignette(1f);
+            }
         }
         
         public void UpdateHKMPPlayers(){
@@ -151,8 +301,10 @@ namespace SmolKnight
             if ((currentTime - this.lastCheckTime).TotalMilliseconds > 5000) {
                 UpdatePlayer();
                 this.lastCheckTime = currentTime;
-            }            
+            }     
         }
+
+        
 
         private void FaceRight(On.HeroController.orig_FaceRight orig, HeroController self)
         {
@@ -170,6 +322,7 @@ namespace SmolKnight
                 UpdatePlayer();
             }
         }
+
     }
 
 }
