@@ -65,7 +65,7 @@ namespace SmolKnight
         public bool currentPlayerIsSmol = false;
         public override string GetVersion()
         {
-            return "v1.0H";
+            return "v1.4H";
         }
         
         public override void Initialize()
