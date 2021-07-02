@@ -7,8 +7,8 @@
         <ProjectGuid>{FF4E00A4-D4F2-44A6-86E0-3A003E1069DD}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>AntMan</RootNamespace>
-        <AssemblyName>Transformer</AssemblyName>
+        <RootNamespace>TransformerKnight</RootNamespace>
+        <AssemblyName>TransformerKnight</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>latest</LangVersion>
@@ -84,4 +84,9 @@
       <EmbeddedResource Include="Resources\BeegKnightWalk.wav" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Exec Command="@echo on" />
+        <Exec Command="echo Copying mod" />
+        <Exec Command="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\&quot;" />
+    </Target>
 </Project>
