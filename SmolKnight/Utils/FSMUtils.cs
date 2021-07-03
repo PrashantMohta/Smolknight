@@ -3,7 +3,7 @@ using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using UnityEngine;
 
-namespace TransformerKnight
+namespace SmolKnight
 {
     public static class FSMUtils 
     {

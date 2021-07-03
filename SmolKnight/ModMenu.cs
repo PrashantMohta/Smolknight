@@ -3,7 +3,7 @@ using Modding.Menu;
 using Modding.Menu.Config;
 using UnityEngine;
 
-namespace TransformerKnight
+namespace SmolKnight
 {
     public class ModMenu
     {
@@ -14,7 +14,7 @@ namespace TransformerKnight
             MappableKey TransformKey = null;
             
             Screen =  new MenuBuilder(UIManager.instance.UICanvas.gameObject, "TKMenu")
-                .CreateTitle("TransformerKnight Settings", MenuTitleStyle.vanillaStyle)
+                .CreateTitle("SmolKnight Settings", MenuTitleStyle.vanillaStyle)
                 .CreateContentPane(RectTransformData.FromSizeAndPos(
                     new RelVector2(new Vector2(1920f, 903f)),
                     new AnchoredPosition(
@@ -38,7 +38,7 @@ namespace TransformerKnight
                     {
                         c.AddKeybind(
                             "TransformBind",
-                            TransformerKnight.settings.keybinds.Transform,
+                            SmolKnight.settings.keybinds.Transform,
                             new KeybindConfig
                             {
                                 Label = "Transform",

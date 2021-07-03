@@ -16,7 +16,7 @@ using System;
 /// <remarks>
 /// For documentation and usage examples: https://github.com/deadlyfingers/UnityWav
 /// </remarks>
-namespace TransformerKnight
+namespace SmolKnight
 {
 	public class WavUtility
 	{

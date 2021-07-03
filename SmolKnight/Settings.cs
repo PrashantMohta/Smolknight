@@ -3,7 +3,7 @@ using InControl;
 using Modding.Converters;
 using Newtonsoft.Json;
 
-namespace TransformerKnight
+namespace SmolKnight
 {
     public class Settings
     {
