@@ -14,32 +14,31 @@ using TMPro;
 
 namespace SmolKnight
 {
+
+    static class Size{
+        public static readonly float SMOL = 0.5f;
+        public static readonly float NORMAL = 1f;
+        public static readonly float BEEG = 2.5f;
+    }
+
     public class SmolKnight:Mod,ICustomMenuMod
     {
         internal static SmolKnight Instance;
 
-        private static float currentScale = 0.5f;
-
-        private static int currentTransformation = 0;
-
+        private static float currentScale = Size.SMOL;
+        private static bool enableInteractivity = true;
         private bool isHKMP = false;
 
-        private bool currentPlayerIsTransformed = false;
+        private bool playerIsSmol = false;
+        private bool playerIsBeeg = false;
 
-        private AudioClip BeegKnightWalk;
-        private GameObject BeegKnightWalkSource;
+        public DateTime lastHKMPCheckTime = DateTime.Now;
+        public DateTime lastCheckTime = DateTime.Now;    
 
         public override string GetVersion()
         {
             return "v1.5";
         }
-
-        private static readonly List<float> SmolKnightValues = new List<float>()
-        {
-            0.5f,
-            1f,
-            2.5f,
-        };
         
         public static Settings settings { get; set; } = new Settings();
         public void OnLoadGlobal(Settings s) => settings = s;
@@ -58,7 +57,6 @@ namespace SmolKnight
            {"Abyss_17",14.2f},  // Pale Ore 
         };
         
-        
         public bool ToggleButtonInsideMenu => false;
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
@@ -70,183 +68,50 @@ namespace SmolKnight
         {
             Instance = this;
 
-            foreach (string res in Assembly.GetExecutingAssembly().GetManifestResourceNames())
-            {
-                if (!res.Contains("BeegKnightWalk")) continue;
-                
-                Stream audioStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(res);
-                if (audioStream != null)
-                {
-                    byte[] buffer = new byte[audioStream.Length];
-                    audioStream.Read(buffer, 0, buffer.Length);
-                    audioStream.Dispose();
-                    BeegKnightWalk = WavUtility.ToAudioClip(buffer);
-                }
-            }
-            
-            BeegKnightWalkSource = new GameObject("BeegKnightWalkSource", typeof(AudioSource));
-            GameObject.DontDestroyOnLoad(BeegKnightWalkSource);
-
             ModHooks.HeroUpdateHook += HeroUpdate;
             On.HeroController.FaceLeft += FaceLeft;
             On.HeroController.FaceRight += FaceRight;
             IL.HeroController.Update10 += DONT_CHANGE_MY_LOCALSCALE;
-            On.GameManager.EnterHero += StopInfiniteTransitions;
+            On.HeroController.EnterScene += EnterScene;
+            On.HeroController.FindGroundPointY += FindGroundPointY;
+
             On.HutongGames.PlayMaker.Actions.SetScale.DoSetScale += DoSetScale;
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += FixSceneSpecificThings;
         }
 
-        private void StopInfiniteTransitions(On.GameManager.orig_EnterHero orig, GameManager self, bool additivegatesearch)
-        {
-            //This is needed because beeg knight can go into infinite loading scene loop because its beeg
-            float AdditionalMovex, AdditionalMovey;
-            if (currentTransformation % 3 == 2) // dont wanna mess with stuff unless knight is beeg
+        private float FindGroundPointY(On.HeroController.orig_FindGroundPointY orig,HeroController self,float x, float y,bool useExtended){
+           //This is needed to get smol knight on the floor
+           var posY = orig(self,x, y,useExtended);
+           if (currentScale == Size.SMOL) 
             {
-                if (self.entryGateName.Contains("left")) AdditionalMovex = 2f;
-                else if (self.entryGateName.Contains("right")) AdditionalMovex = -2f;
-                else AdditionalMovex = 0;
-
-                if (self.entryGateName.Contains("bot")) AdditionalMovey = 2f;
-                else AdditionalMovey = 0;
+                posY -= 0.3f;
             }
-            else AdditionalMovex = AdditionalMovey = 0;
+            return posY;
+        }
+        private IEnumerator EnterScene(On.HeroController.orig_EnterScene orig,HeroController self, TransitionPoint enterGate, float delayBeforeEnter){
 
+            float AdditionalMovex = 0, AdditionalMovey = 0;
+            var gateposition = enterGate.GetGatePosition();
+            //This is needed because beeg knight can go into infinite loading scene loop because its beeg    
+            if (currentScale == Size.BEEG) 
+            {
+                if (gateposition == GatePosition.left) {
+                    AdditionalMovex = 2f;
+                } else if (gateposition == GatePosition.right) {
+                    AdditionalMovex = -2f;
+                }
+
+                if (gateposition == GatePosition.bottom) {
+                    AdditionalMovey = 2f;
+                }
+                enterGate.transform.position = enterGate.transform.position + new Vector3(AdditionalMovex, AdditionalMovey,0f);
+            }
             
-            // The normal function from GameManager
-            if (self.entryGateName == "door_dreamReturn" &&
-                !string.IsNullOrEmpty(self.playerData.GetString("bossReturnEntryGate")))
-            {
-                if (self.GetCurrentMapZone() == MapZone.GODS_GLORY.ToString())
-                    self.entryGateName = self.playerData.GetString("bossReturnEntryGate");
-                PlayerData.instance.SetString("bossReturnEntryGate", string.Empty);
-            }
+            var wait = orig(self,enterGate,delayBeforeEnter);
+            UpdatePlayer();
+            UpdateHKMPPlayers();
+            yield return wait;
 
-            bool needFirstFadeIn = ReflectionHelper.GetField<GameManager, bool>(self, "needFirstFadeIn");
-            bool hazardRespawningHero = ReflectionHelper.GetField<GameManager, bool>(self, "hazardRespawningHero");
-            bool verboseMode = ReflectionHelper.GetField<GameManager, bool>(self, "verboseMode");
-            float entryDelay = ReflectionHelper.GetField<GameManager, float>(self, "entryDelay");
-            
-            if (self.RespawningHero)
-            {
-                if (needFirstFadeIn)
-                {
-                    self.StartCoroutine(self.FadeSceneInWithDelay(0.3f));
-                    ReflectionHelper.SetField<GameManager, bool>(self, "needFirstFadeIn", false);
-                }
-
-                self.StartCoroutine(self.hero_ctrl.Respawn());
-                self.FinishedEnteringScene();
-                self.RespawningHero = false;
-            }
-            else if (hazardRespawningHero)
-            {
-                self.StartCoroutine(self.hero_ctrl.HazardRespawn());
-                self.FinishedEnteringScene();
-                ReflectionHelper.SetField<GameManager, bool>(self, "hazardRespawningHero", false);
-            }
-            else if (self.entryGateName == "dreamGate")
-                self.hero_ctrl.EnterSceneDreamGate();
-            else if (!self.startedOnThisScene)
-            {
-                self.SetState(GameState.ENTERING_LEVEL);
-                if (!string.IsNullOrEmpty(self.entryGateName))
-                {
-                    if (additivegatesearch)
-                    {
-                        if (verboseMode) Debug.Log((object) ("Searching for entry gate " + self.entryGateName + " in the next scene: " + self.nextSceneName));
-                        
-                        foreach (GameObject rootGameObject in UnityEngine.SceneManagement.SceneManager.GetSceneByName(self.nextSceneName).GetRootGameObjects())
-                        {
-                            TransitionPoint component = rootGameObject.GetComponent<TransitionPoint>();
-                            if ((UnityEngine.Object) component != (UnityEngine.Object) null &&
-                                component.name == self.entryGateName)
-                            {
-                                if (verboseMode) Debug.Log((object) "SUCCESS - Found as root object");
-                                component.entryOffset.x += AdditionalMovex;
-                                component.entryOffset.y += AdditionalMovey;
-                                self.StartCoroutine(self.hero_ctrl.EnterScene(component, entryDelay));
-                                return;
-                            }
-
-                            if (rootGameObject.name == "_Transition Gates")
-                            {
-                                TransitionPoint[] componentsInChildren =
-                                    rootGameObject.GetComponentsInChildren<TransitionPoint>();
-                                for (int index = 0; index < componentsInChildren.Length; ++index)
-                                {
-                                    if (componentsInChildren[index].name == self.entryGateName)
-                                    {
-                                        if (verboseMode)  Debug.Log((object) "SUCCESS - Found in _Transition Gates folder");
-                                        componentsInChildren[index].entryOffset.x += AdditionalMovex;
-                                        componentsInChildren[index].entryOffset.y += AdditionalMovey;
-                                        self.StartCoroutine(self.hero_ctrl.EnterScene(componentsInChildren[index],
-                                            entryDelay));
-                                        return;
-                                    }
-                                }
-                            }
-
-                            TransitionPoint[] componentsInChildren1 =
-                                rootGameObject.GetComponentsInChildren<TransitionPoint>();
-                            for (int index = 0; index < componentsInChildren1.Length; ++index)
-                            {
-                                if (componentsInChildren1[index].name == self.entryGateName)
-                                {
-                                    if (verboseMode) Debug.Log("SUCCESS - Found as a child of a random scene object, can't win em all");
-                                    componentsInChildren1[index].entryOffset.x += AdditionalMovex;
-                                    componentsInChildren1[index].entryOffset.y += AdditionalMovey;
-                                    self.StartCoroutine(self.hero_ctrl.EnterScene(componentsInChildren1[index],
-                                        entryDelay));
-                                    return;
-                                }
-                            }
-                        }
-
-                        Debug.LogError((object) "Searching in next scene for TransitionGate failed.");
-                    }
-                    else
-                    {
-                        GameObject gameObject = GameObject.Find(self.entryGateName);
-                        if ((UnityEngine.Object) gameObject != (UnityEngine.Object) null)
-                        {
-                            TransitionPoint EntryGate = gameObject.GetComponent<TransitionPoint>();
-                            EntryGate.entryOffset.x += AdditionalMovex;
-                            EntryGate.entryOffset.y += AdditionalMovey;
-                            self.StartCoroutine(self.hero_ctrl.EnterScene(EntryGate, entryDelay));
-                        }
-                        else
-                        {
-                            Debug.LogError((object) ("No entry point found with the name \"" + self.entryGateName + "\" in self scene (" + self.sceneName + "). Unable to move hero into position, trying alternative gates..."));
-                            TransitionPoint[] objectsOfType = UnityEngine.Object.FindObjectsOfType<TransitionPoint>();
-                            if (objectsOfType != null)
-                            {
-                                objectsOfType[0].entryOffset.x += AdditionalMovex;
-                                objectsOfType[0].entryOffset.y += AdditionalMovey;
-                                self.StartCoroutine(self.hero_ctrl.EnterScene(objectsOfType[0], entryDelay));
-                            }
-                            else
-                            {
-                                Debug.LogError((object) "Could not find any gates in self scene. Trying last ditch spawn...");
-                                self.hero_ctrl.transform.SetPosition2D((float) (self.tilemap.width / 2f) + AdditionalMovex,
-                                    (self.tilemap.height / 2f)+AdditionalMovey);
-                                self.hero_ctrl.EnterSceneDreamGate();
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Debug.LogError("No entry gate has been defined in the Game Manager, unable to move hero into position.");
-                    self.FinishedEnteringScene();
-                }
-            }
-            else
-            {
-                if (!self.IsGameplayScene())
-                    return;
-                self.FinishedEnteringScene();
-                self.FadeSceneIn();
-            }
         }
 
         // Changing the value that the update function in HeroController uses to "fix" wrong local scales
@@ -256,14 +121,12 @@ namespace SmolKnight
             
             while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdcR4(-1f) || instr.MatchLdcR4(1f) ))  
             {
-                cursor.EmitDelegate<Func<float>>(GiveTimeScale);
+                cursor.EmitDelegate<Func<float>>(GetCurrentScale);
                 cursor.Emit(OpCodes.Mul);
             }
         }
         //ngl idk why this works i thought i needed to check fro + and - but i apparently dont. if it works i dont question
-        private static float GiveTimeScale() => currentScale;
-        
-        
+        private static float GetCurrentScale() => currentScale;
         
         private void FixSceneSpecificThings(Scene scene,LoadSceneMode mode)
         {
@@ -273,8 +136,7 @@ namespace SmolKnight
         private IEnumerator FixShinyItemStand(Scene scene)
         {
             yield return null;
-            float ShineyPos;
-            if (ShineyItems.TryGetValue(scene.name, out ShineyPos))
+            if (ShineyItems.TryGetValue(scene.name, out float ShineyPos))
             {
                 var Shiney = GameObject.Find("Shiny Item Stand");
                 if(Shiney == null)
@@ -325,38 +187,46 @@ namespace SmolKnight
                 fsm.GetAction<SetVector3XYZ>(lightAffectors.Item1, lightAffectors.Item2).y.Value = lightAffectors.Item3 * factor;
                 fsm.GetAction<SetVector3XYZ>(lightAffectors.Item1, lightAffectors.Item2).z.Value = lightAffectors.Item3 * factor;
             }
+
+            // re-evaluate instead of waiting for screen transition
+            fsm.SetState("Dark Lev Check");
         }
 
-        private static void Transform(Transform transform)
+        private static void Smol(Transform transform)
         {
+            SetScale(transform,Size.SMOL);  
+        }
+        private static void Normal(Transform transform)
+        {
+            SetScale(transform,Size.NORMAL);
+        }
+        private static void Beeg(Transform transform)
+        {
+            SetScale(transform,Size.BEEG);
+        }
+        private static void InteractiveScale(Transform transform){
+            //add sound effects here + flash white here
+            if(currentScale == Size.SMOL){
+                Smol(transform);
+            } else if(currentScale == Size.NORMAL){
+                Normal(transform);
+            } else if(currentScale == Size.BEEG){
+                Beeg(transform);
+            }
+        }
+        private static void SetScale(Transform transform,float scale){
             var localScale = transform.localScale;
-            var x = currentScale;
-            var y = currentScale;
-            bool isNextBigger = Math.Abs(localScale.y) < currentScale;
+            var x = scale;
+            var y = scale;
             
             //checks for looking left or right
             if (localScale.x < 0)
             {
-                x = -currentScale;
+                x = -scale;
             }
             if (localScale.y < 0)
             {
-                y = -currentScale;
-            }
-
-            float AdditionalMove = (currentTransformation % 3) switch
-            {
-                1 => 1f,
-                2 => 2f,
-                _ => 0f,
-            };
-            
-            //makes sure people dont get stuck into the ground
-            if (isNextBigger) transform.position = new Vector3(transform.position.x, transform.position.y + AdditionalMove, transform.position.z);
-            
-            if (Math.Abs(localScale.x - x) > Mathf.Epsilon || Math.Abs(localScale.y - y) > Mathf.Epsilon) 
-            { 
-                transform.localScale = new Vector3(x, y, 1f);
+                y = -scale;
             }
 
             //if we need to increase the light 
@@ -366,30 +236,61 @@ namespace SmolKnight
 
             if(transform.gameObject == HeroController.instance.gameObject)
             {
-                setVignette(2f);
+
+                float AdditionalMove = 0f;
+                if(scale == Size.NORMAL){
+                    AdditionalMove = 0.7f;
+                } else if(scale == Size.BEEG){
+                    AdditionalMove = 2f;
+                } else if(scale == Size.SMOL){
+                    AdditionalMove = -3f;
+                } 
+                
+                //try to make sure player stays on the ground when rescaling
+                //todo : sometimes it's possible to fall through into the floor , possible fix -> only scale when benched
+                if(Math.Abs(localScale.y) != scale){
+                    transform.position = new Vector3(transform.position.x, transform.position.y + AdditionalMove, transform.position.z);
+                }
+                setVignette(1f/scale);
+            }
+
+            if (Math.Abs(localScale.x - x) > Mathf.Epsilon || Math.Abs(localScale.y - y) > Mathf.Epsilon) 
+            { 
+                transform.localScale = new Vector3(x, y, 1f);
             }
         }
 
-        private static void normal(Transform transform)
-        {
-            var localScale = transform.localScale;
-            var x = 1f;
-            var y = 1f;
-            if (localScale.x < 0)
-            {
-                x = -1f;
+        private static void nextScale(){
+            if(!enableInteractivity || Instance.isHKMP) { 
+                return;
             }
-            if (localScale.y < 0)
-            {
-                y = -1f;
+
+            if(currentScale == Size.SMOL){
+                currentScale = Size.NORMAL;
+            } else if(currentScale == Size.NORMAL){
+                currentScale = Size.BEEG;
+            } else if(currentScale == Size.BEEG){
+                currentScale = Size.SMOL;
             }
-            if (Math.Abs(localScale.x - x) > Mathf.Epsilon || Math.Abs(localScale.y - y) > Mathf.Epsilon) { 
-                transform.localScale = new Vector3(x, y, 1f);
+        }
+
+        private void fixPlayerName(Transform Player , Transform Username,float currentPlayerScale){
+
+            if(currentPlayerScale == Size.NORMAL){
+                Username.position = Player.position + new Vector3(0, 1.25f, 0);
+            } else if(currentPlayerScale == Size.SMOL){
+                Username.position = Player.position + new Vector3(0, 0.75f, 0);
+            } else if(currentPlayerScale == Size.BEEG){
+                Username.position = Player.position + new Vector3(0, 2f, 0);
             }
-            if(transform.gameObject == HeroController.instance.gameObject)
-            {
-                setVignette(1f);
+
+            if(currentPlayerScale != Size.SMOL){ // because it looks absurd on smolknight
+                var ulocalScale = new Vector3(0.25f, 0.25f, Username.localScale.z);
+                ulocalScale.x = ulocalScale.x * 1/currentPlayerScale;
+                ulocalScale.y = ulocalScale.y * 1/currentPlayerScale;
+                Username.localScale = ulocalScale;
             }
+
         }
 
         private void UpdateHKMPPlayers()
@@ -400,15 +301,24 @@ namespace SmolKnight
                 {
                     var name = gameObj.transform.Find("Username");
                     if( name == null){continue;}
+                    
                     var tmp = name.gameObject.GetComponent<TextMeshPro>();
-                    if(tmp.text.Contains("SMOL") || tmp.text.Contains("BEEG"))
+                    if(tmp.text.Contains("SMOL"))
                     {
-                        Transform(gameObj.transform);
+                        Smol(gameObj.transform);
+                        fixPlayerName(gameObj.transform,name,Size.SMOL);
+                    } 
+                    else  if(tmp.text.Contains("BEEG"))
+                    {   
+                        Beeg(gameObj.transform);
+                        fixPlayerName(gameObj.transform,name,Size.BEEG);
                     } 
                     else 
                     {
-                        normal(gameObj.transform);
+                        Normal(gameObj.transform);
+                        fixPlayerName(gameObj.transform,name,Size.NORMAL);
                     }
+
                 }
             }
         }
@@ -418,129 +328,122 @@ namespace SmolKnight
             var playerTransform = HeroController.instance.gameObject.transform;
             var hkmpUsername = playerTransform.Find("Username");
             var localScale = playerTransform.localScale;
-            currentPlayerIsTransformed = (localScale.x * localScale.x < 0.5f) && (localScale.y * localScale.y < 0.5f);
-            if( hkmpUsername != null)
+            
+            playerIsSmol = Math.Abs(localScale.x) == Size.SMOL && Math.Abs(localScale.y) == Size.SMOL;
+            playerIsBeeg = Math.Abs(localScale.x) == Size.BEEG && Math.Abs(localScale.y) == Size.BEEG;
+
+            if( hkmpUsername != null && hkmpUsername.gameObject.activeSelf)
             {
                 isHKMP = true;
                 var tmp = hkmpUsername.gameObject.GetComponent<TextMeshPro>();
-                if(!(tmp.text.Contains("SMOL") || tmp.text.Contains("BEEG")) && currentPlayerIsTransformed)
+                if(!(tmp.text.Contains("SMOL") || tmp.text.Contains("BEEG")) && (playerIsSmol || playerIsBeeg))
                 {
-                    playerTransform.position = playerTransform.position + new Vector3(0,1f,0);
-                    normal(playerTransform);
+                    currentScale = Size.NORMAL;
+                    Normal(playerTransform);
                 } 
-                else if((tmp.text.Contains("SMOL")|| tmp.text.Contains("BEEG")) && !currentPlayerIsTransformed)
+                else if((tmp.text.Contains("SMOL")) && !playerIsSmol)
                 {
-                    
-                    Transform(playerTransform);
-                }
+                    currentScale = Size.SMOL;
+                    Smol(playerTransform);
+                } 
+                else if((tmp.text.Contains("BEEG") && !playerIsBeeg))
+                {
+                    currentScale = Size.BEEG;
+                    Beeg(playerTransform);
+                }    
+                fixPlayerName(playerTransform,hkmpUsername,currentScale);
+                SoundMagic();            
             }
             else 
             {
-                Transform(playerTransform);
+                isHKMP = false;
+                InteractiveScale(playerTransform);
+                SoundMagic();
             }
         }
 
-        private DateTime lastHKMPCheckTime = DateTime.Now;
         
-        private void FaceRight(On.HeroController.orig_FaceRight orig, HeroController self)
-        {
-            self.cState.facingRight = true;
-            Vector3 localScale = self.transform.localScale;
-            localScale.x = -currentScale;
-            self.transform.localScale = localScale;
-            UpdatePlayer();
-        }
-
-        private bool ShouldPlayWalkingSound()
-        {
-            return HeroController.instance.hero_state == ActorStates.running &&
-                   !HeroController.instance.cState.dashing &&
-                   (!HeroController.instance.cState.backDashing &&
-                    !HeroController.instance.controlReqlinquished);
-        }
-
-        private void HeroUpdate()
-        {
-            if (settings.keybinds.Transform.WasPressed)
-            {
-                currentTransformation++;
-                currentScale = SmolKnightValues[currentTransformation % 3];
-            }
-
-            if (currentTransformation % 3 == 2)
-            {
-                if (ShouldPlayWalkingSound())
-                {
-                    AudioSource audios = BeegKnightWalkSource.GetComponent<AudioSource>();
-                    audios.clip = BeegKnightWalk;
-                    HeroAudioController audioCtrl = ReflectionHelper.GetField<HeroController, HeroAudioController>(
-                        HeroController.instance,
-                        "audioCtrl");
-                    audioCtrl.StopSound(HeroSounds.FOOTSTEPS_RUN);
-                    audioCtrl.StopSound(HeroSounds.FOOTSTEPS_WALK);
-                    if (!audios.isPlaying)
-                    {
-                        audios.PlayOneShot(audios.clip, GameManager.instance.GetImplicitCinematicVolume());
-                    }
+        private void manageReverb(AudioSource source){
+            if(currentScale == Size.BEEG){
+                if(!reverb.TryGetValue(source.name,out var rev)){
+                    var r = source.gameObject.AddComponent<AudioReverbFilter>();
+                    r.reverbLevel = 200f;
+                    r.decayTime = 3f;
+                    r.decayHFRatio = 2f;
+                    reverb.Add(source.name,r);
+                } else {
+                    rev.enabled = true;
+                }
+                
+            } else {
+                if(reverb.TryGetValue(source.name,out var rev)){
+                    rev.enabled = false;
                 }
             }
-
-            var currentTime = DateTime.Now;
-            if (isHKMP && (currentTime - lastHKMPCheckTime).TotalMilliseconds > 500) 
-            {
-                UpdateHKMPPlayers();
-                UpdatePlayer();
-                lastHKMPCheckTime = currentTime;
+        }
+        private Dictionary<string,AudioReverbFilter> reverb = new Dictionary<string,AudioReverbFilter>();
+        private void SoundMagic(){
+            AudioSource[] audioSources = HeroController.instance.GetComponentsInChildren<AudioSource>();
+            foreach(AudioSource source in audioSources){
+                Log(source.name + ":" +source.volume);
+                if(currentScale == Size.SMOL){
+                    source.pitch = 1.5f;
+                    HeroController.instance.checkEnvironment();
+                } else if(currentScale == Size.NORMAL){
+                    source.pitch = 1f;
+                    HeroController.instance.checkEnvironment();
+                } else if(currentScale == Size.BEEG){
+                    source.pitch = 0.9f;
+                    if(source.name == "FootstepsWalk"){
+                        source.pitch = 0.8f;
+                    }
+                }
+                if(source.name == "FootstepsWalk" || source.name == "FootstepsRun"){
+                        manageReverb(source);
+                }
             }
-            else
+        }
+        private void HeroUpdate()
+        {
+            var currentTime = DateTime.Now;
+
+            if (settings.keybinds.Transform.WasPressed)
             {
+                nextScale();
                 UpdatePlayer();
+                SoundMagic();
+                this.lastCheckTime = currentTime;
+            }
+
+            if (isHKMP == true && (currentTime - this.lastHKMPCheckTime).TotalMilliseconds > 1000) {
+                UpdateHKMPPlayers();
+                this.lastHKMPCheckTime = currentTime;
+            }
+
+            if ((currentTime - this.lastCheckTime).TotalMilliseconds > 5000) {
+                UpdatePlayer();
+                this.lastCheckTime = currentTime;
             }
         }
         private void FaceLeft(On.HeroController.orig_FaceLeft orig, HeroController self)
         {
-            self.cState.facingRight = false;
-            Vector3 localScale = self.transform.localScale;
-            localScale.x = currentScale;
-            self.transform.localScale = localScale;
+            orig(self);
             UpdatePlayer();
         }
-
+        private void FaceRight(On.HeroController.orig_FaceRight orig, HeroController self)
+        {
+            orig(self);
+            UpdatePlayer();
+        }
         private void DoSetScale(On.HutongGames.PlayMaker.Actions.SetScale.orig_DoSetScale orig, HutongGames.PlayMaker.Actions.SetScale self)
         {
-            if (self.gameObject != null && self.gameObject.GameObject != null &&
+            orig(self);
+            if (self.gameObject != null && 
+                self.gameObject.GameObject != null &&
                 self.gameObject.GameObject.Value != null &&
                 self.gameObject.GameObject.Value == HeroController.instance.gameObject)
             {
-                GameObject ownerDefaultTarget = self.Fsm.GetOwnerDefaultTarget(self.gameObject);
-                if (ownerDefaultTarget == null)
-                {
-                    return;
-                }
-
-                Vector3 localScale =
-                    (!self.vector.IsNone) ? self.vector.Value : ownerDefaultTarget.transform.localScale;
-                if (!self.x.IsNone)
-                {
-                    localScale.x = self.x.Value * currentScale;
-                }
-
-                if (!self.y.IsNone)
-                {
-                    localScale.y = self.y.Value * currentScale;
-                }
-
-                if (!self.z.IsNone)
-                {
-                    localScale.z = self.z.Value;
-                }
-
-                ownerDefaultTarget.transform.localScale = localScale;
                 UpdatePlayer();
-            }
-            else
-            {
-                orig(self);
             }
         }
     }
