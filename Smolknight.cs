@@ -55,6 +55,16 @@ namespace SmolKnight
            {"Mines_11",39.5f}, // ShopKeeper's Key
            {"Fungus3_39",35f}, // Love Key
            {"Abyss_17",14.2f},  // Pale Ore 
+           {"Mines_34",53.0f},  // Pale Ore
+           {"Mines_36",8.3f},   // Deep Focus
+           {"Fungus2_20",6.9f}, // Spore Shroom
+           {"Abyss_20",7.2f},   // Simple Key
+           {"Cliffs_05",5.5f},    //Joni's Blessing
+           {"Mines_30",15.8f},    // kings idol
+           {"Waterways_15",3f}  //kings idol
+           //do not move these, they only work without moving
+           //{"Deepnest_44",5.4f},// sharp shadow
+           //{"Fungus2_23",3.0f},// dashmaster 
         };
         
         public bool ToggleButtonInsideMenu => false;
