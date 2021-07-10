@@ -47,7 +47,7 @@ namespace SmolKnight
         private readonly Dictionary<string, float> ShineyItems = new Dictionary<string, float>()
         {
            {"Fungus2_14",19.3f}, // Mantis Claw
-           {"Ruins1_30",49.3f}, // Spell Twister
+           {"Ruins1_30",49.3f},  // Spell Twister
            {"Deepnest_32",2.2f}, // Pale Ore
            {"Hive_05",12.0f},  // Hive Blood
            {"Room_Wyrm",6.9f}, // Kings Brand
@@ -69,6 +69,7 @@ namespace SmolKnight
         
         public bool ToggleButtonInsideMenu => false;
 
+        private AudioSource transformSource;
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
             return ModMenu.CreatemenuScreen(modListMenu);
@@ -214,8 +215,16 @@ namespace SmolKnight
         {
             SetScale(transform,Size.BEEG);
         }
+        
+        private void PlayTransformEffects(){
+            HeroController.instance.GetComponent<SpriteFlash>().flashFocusHeal();
+            if(transformSource == null){
+                var soundGO = HeroController.instance.gameObject.FindGameObjectInChildren("Dash");
+                transformSource = soundGO.GetComponent<AudioSource>();
+            }
+            transformSource.Play();
+        }
         private static void InteractiveScale(Transform transform){
-            //add sound effects here + flash white here
             if(currentScale == Size.SMOL){
                 Smol(transform);
             } else if(currentScale == Size.NORMAL){
@@ -373,43 +382,34 @@ namespace SmolKnight
         }
 
         
-        private void manageReverb(AudioSource source){
-            if(currentScale == Size.BEEG){
-                if(!reverb.TryGetValue(source.name,out var rev)){
-                    var r = source.gameObject.AddComponent<AudioReverbFilter>();
-                    r.reverbLevel = 200f;
-                    r.decayTime = 3f;
-                    r.decayHFRatio = 2f;
-                    reverb.Add(source.name,r);
-                } else {
-                    rev.enabled = true;
-                }
-                
-            } else {
-                if(reverb.TryGetValue(source.name,out var rev)){
-                    rev.enabled = false;
-                }
-            }
-        }
-        private Dictionary<string,AudioReverbFilter> reverb = new Dictionary<string,AudioReverbFilter>();
+        private Dictionary<string,AudioEchoFilter> echo = new Dictionary<string,AudioEchoFilter>();
         private void SoundMagic(){
+            //pitches up or down the sounds of the hero based on size
             AudioSource[] audioSources = HeroController.instance.GetComponentsInChildren<AudioSource>();
-            foreach(AudioSource source in audioSources){
-                Log(source.name + ":" +source.volume);
+            foreach(AudioSource source in audioSources){          
                 if(currentScale == Size.SMOL){
                     source.pitch = 1.5f;
                     HeroController.instance.checkEnvironment();
+                    if(source.name == "FootstepsWalk" || source.name == "FootstepsRun"){
+                        source.volume = 1f;
+                    }
                 } else if(currentScale == Size.NORMAL){
                     source.pitch = 1f;
                     HeroController.instance.checkEnvironment();
-                } else if(currentScale == Size.BEEG){
-                    source.pitch = 0.9f;
-                    if(source.name == "FootstepsWalk"){
-                        source.pitch = 0.8f;
+                    if(source.name == "FootstepsWalk" || source.name == "FootstepsRun"){
+                        source.volume = 1f;
                     }
-                }
-                if(source.name == "FootstepsWalk" || source.name == "FootstepsRun"){
-                        manageReverb(source);
+                } else if(currentScale == Size.BEEG){
+                    source.pitch = 0.8f;
+                    if(source.name == "FootstepsWalk"){
+                        source.pitch = 0.7f;
+                        source.volume = 1.5f;
+                    }
+                    if(source.name == "FootstepsRun"){
+                        source.pitch = 0.8f;
+                        source.volume = 1.5f;
+
+                    }
                 }
             }
         }
@@ -421,18 +421,19 @@ namespace SmolKnight
             {
                 nextScale();
                 UpdatePlayer();
+                PlayTransformEffects();
                 SoundMagic();
-                this.lastCheckTime = currentTime;
+                lastCheckTime = currentTime;
             }
 
-            if (isHKMP == true && (currentTime - this.lastHKMPCheckTime).TotalMilliseconds > 1000) {
+            if (isHKMP == true && (currentTime - lastHKMPCheckTime).TotalMilliseconds > 1000) {
                 UpdateHKMPPlayers();
-                this.lastHKMPCheckTime = currentTime;
+                lastHKMPCheckTime = currentTime;
             }
 
-            if ((currentTime - this.lastCheckTime).TotalMilliseconds > 5000) {
+            if ((currentTime - lastCheckTime).TotalMilliseconds > 5000) {
                 UpdatePlayer();
-                this.lastCheckTime = currentTime;
+                lastCheckTime = currentTime;
             }
         }
         private void FaceLeft(On.HeroController.orig_FaceLeft orig, HeroController self)
