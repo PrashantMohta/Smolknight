@@ -5,11 +5,22 @@ using Newtonsoft.Json;
 
 namespace SmolKnight
 {
-    public class Settings
+
+    public class SaveModSettings  {
+        public string currentScale {get; set;} = "SMOL";
+        public bool enableSwitching {get; set;} = false;
+        public bool startupSelection {get; set;} = false;
+
+    }
+
+    public class GlobalModSettings 
     {
+        public string Version {get; set;} = "";
+        
         [JsonConverter(typeof(PlayerActionSetConverter))]
         public KeyBinds keybinds = new KeyBinds();
     }
+
     public class KeyBinds : PlayerActionSet
     {
         public PlayerAction Transform;

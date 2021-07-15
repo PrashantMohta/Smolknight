@@ -21,12 +21,11 @@ namespace SmolKnight
         public static readonly float BEEG = 2.5f;
     }
 
-    public class SmolKnight:Mod,ICustomMenuMod
+    public class SmolKnight:Mod,ICustomMenuMod,IGlobalSettings<GlobalModSettings>, ILocalSettings<SaveModSettings>
     {
         internal static SmolKnight Instance;
 
-        private static float currentScale = Size.SMOL;
-        private static bool enableInteractivity = true;
+        public static float currentScale = Size.SMOL;
         private bool isHKMP = false;
 
         private bool playerIsSmol = false;
@@ -37,14 +36,39 @@ namespace SmolKnight
 
         public override string GetVersion()
         {
-            return "v1.5";
+            return "v1.5-01";
         }
         
-        public static Settings settings { get; set; } = new Settings();
-        public void OnLoadGlobal(Settings s) => settings = s;
-        public Settings OnSaveGlobal() => settings;
+        public static GlobalModSettings settings { get; set; } = new GlobalModSettings();
+        public void OnLoadGlobal(GlobalModSettings s) => settings = s;
+        public GlobalModSettings OnSaveGlobal() => settings;
 
-        private readonly Dictionary<string, float> ShineyItems = new Dictionary<string, float>()
+        public static SaveModSettings saveSettings { get; set; } = new SaveModSettings();
+        public void OnLoadLocal(SaveModSettings s) => saveSettings = s;
+        public SaveModSettings OnSaveLocal() => saveSettings;
+
+        public void setSaveSettings(){
+            if(currentScale == Size.SMOL){
+                saveSettings.currentScale = "SMOL";
+            } else if(currentScale == Size.BEEG){
+                saveSettings.currentScale = "BEEG";
+            } else {
+                saveSettings.currentScale = "NORMAL";
+            }
+        }
+        public void LoadSaveGame(SaveGameData data){
+            if(saveSettings.currentScale == "SMOL"){
+                currentScale = Size.SMOL;
+            } else if(saveSettings.currentScale == "BEEG"){
+                currentScale = Size.BEEG;
+            } else {
+                currentScale = Size.NORMAL;
+            }
+            ModMenu.RefreshOptions();
+        }
+        
+
+        private readonly Dictionary<string, float> ShineyItemStandList = new Dictionary<string, float>()
         {
            {"Fungus2_14",19.3f}, // Mantis Claw
            {"Ruins1_30",49.3f},  // Spell Twister
@@ -70,9 +94,16 @@ namespace SmolKnight
         public bool ToggleButtonInsideMenu => false;
 
         private AudioSource transformSource;
+
+        public static void startUpScreen(){
+            ModMenu.skipPauseMenu = true;
+            GameManager.instance.StartCoroutine(GameManager.instance.PauseToggleDynamicMenu(ModMenu.Screen));
+        }
+
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
-            return ModMenu.CreatemenuScreen(modListMenu);
+            ModMenu.saveModsMenuScreen(modListMenu);
+            return ModMenu.CreatemenuScreen();
         }
 
         public override void Initialize()
@@ -80,14 +111,89 @@ namespace SmolKnight
             Instance = this;
 
             ModHooks.HeroUpdateHook += HeroUpdate;
+            ModHooks.AfterSavegameLoadHook += LoadSaveGame;
+
             On.HeroController.FaceLeft += FaceLeft;
             On.HeroController.FaceRight += FaceRight;
             IL.HeroController.Update10 += DONT_CHANGE_MY_LOCALSCALE;
             On.HeroController.EnterScene += EnterScene;
             On.HeroController.FindGroundPointY += FindGroundPointY;
+            On.HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool.OnEnter += OnSpellSpawn;
 
             On.HutongGames.PlayMaker.Actions.SetScale.DoSetScale += DoSetScale;
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += FixSceneSpecificThings;
+            On.HutongGames.PlayMaker.Actions.RayCast2d.OnEnter += OnRayCast2d;
+        }
+        private void OnRayCast2d(On.HutongGames.PlayMaker.Actions.RayCast2d.orig_OnEnter orig, HutongGames.PlayMaker.Actions.RayCast2d self){
+            GameObject fromObj = self.Fsm.GetOwnerDefaultTarget(self.fromGameObject);
+            self.debug.Value = true;
+            if(fromObj.name == "Knight"){
+                self.distance.Value = 2f * currentScale;
+            }
+            orig(self);
+        }
+
+        private void scaleGO(GameObject go,float scale){
+            var localScale = go.transform.localScale;
+            localScale.x = localScale.x > 0 ? scale : -scale;
+            localScale.y = scale;
+            go.transform.localScale = localScale;
+        }
+
+        private IEnumerator scaleFireballCoro(GameObject go){
+            yield return null;
+            scaleGO(go,currentScale);
+            var blast = go.FindGameObjectInChildren("Fireball Blast");
+            var blastpos = blast.transform.position;
+            if(currentScale == Size.SMOL){
+                scaleGO(blast,currentScale * 2f);
+            }
+            var hgo = HeroController.instance.gameObject;
+            var heroCollider = hgo.GetComponent<BoxCollider2D>();
+            blastpos.y = heroCollider.bounds.center.y ;
+            blastpos.x = heroCollider.bounds.center.x - (hgo.transform.localScale.x > 0 ? currentScale : -currentScale);
+            blast.transform.position = blastpos;
+
+        }
+
+        private IEnumerator scaleDG(GameObject go){
+            yield return null;
+            scaleGO(go,currentScale);
+        }
+        
+        private void OnSpellSpawn(On.HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool.orig_OnEnter orig, HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool self){
+            if(self.gameObject.Value){
+                var g = self.gameObject.Value;
+                if(g.name.StartsWith("Fireball")) {
+                    if(currentScale == Size.SMOL){
+                        var p = self.position.Value;
+                        p.y = -0.3f;
+                        self.position.Value = p;
+                    }
+                }
+            }
+            orig(self);
+            var go = self.storeObject.Value;
+            var localScale = go.transform.localScale;
+            if(go.name.StartsWith("Fireball")) {
+                scaleGO(go,currentScale);
+                GameManager.instance.StartCoroutine(scaleFireballCoro(go));
+
+            } else if (go.name.StartsWith("dream_gate_object")){
+                /*foreach(var c in go.GetComponents<Component>()){
+                    Log(c.GetType());
+                    if(c.GetType().ToString() == "PlayMakerFSM"){
+                        Log(((PlayMakerFSM)c).FsmName);
+                    }
+                }
+                PlayMakerFSM DGFSM = go.LocateMyFSM("Cancel");
+                var act = DGFSM.GetAction<ActivateGameObject>("ActivateGameObject",1);
+                var go1 = act.gameObject.GameObject.Value;
+                scaleGO(go1,currentScale);
+                GameManager.instance.StartCoroutine(scaleDG(go1));
+                */
+            }
+
         }
 
         private float FindGroundPointY(On.HeroController.orig_FindGroundPointY orig,HeroController self,float x, float y,bool useExtended){
@@ -147,7 +253,7 @@ namespace SmolKnight
         private IEnumerator FixShinyItemStand(Scene scene)
         {
             yield return null;
-            if (ShineyItems.TryGetValue(scene.name, out float ShineyPos))
+            if (ShineyItemStandList.TryGetValue(scene.name, out float ShineyPos))
             {
                 var Shiney = GameObject.Find("Shiny Item Stand");
                 if(Shiney == null)
@@ -227,10 +333,13 @@ namespace SmolKnight
         private static void InteractiveScale(Transform transform){
             if(currentScale == Size.SMOL){
                 Smol(transform);
+                Instance.scalePrefabs();
             } else if(currentScale == Size.NORMAL){
                 Normal(transform);
+                Instance.scalePrefabs();
             } else if(currentScale == Size.BEEG){
                 Beeg(transform);
+                Instance.scalePrefabs();
             }
         }
         private static void SetScale(Transform transform,float scale){
@@ -255,20 +364,28 @@ namespace SmolKnight
 
             if(transform.gameObject == HeroController.instance.gameObject)
             {
-
                 float AdditionalMove = 0f;
-                if(scale == Size.NORMAL){
-                    AdditionalMove = 0.7f;
-                } else if(scale == Size.BEEG){
-                    AdditionalMove = 2f;
-                } else if(scale == Size.SMOL){
-                    AdditionalMove = -3f;
-                } 
-                
-                //try to make sure player stays on the ground when rescaling
-                //todo : sometimes it's possible to fall through into the floor , possible fix -> only scale when benched
+                //try to make sure player stays above the ground when rescaling
                 if(Math.Abs(localScale.y) != scale){
-                    transform.position = new Vector3(transform.position.x, transform.position.y + AdditionalMove, transform.position.z);
+                    if(HeroController.instance.cState.onGround){
+                        if(scale == Size.NORMAL){
+                            AdditionalMove = 0f;
+                        } else if(scale == Size.BEEG){
+                            AdditionalMove = 1f;
+                        } else if(scale == Size.SMOL){
+                            AdditionalMove = -1.5f;
+                        } 
+                        transform.position = HeroController.instance.FindGroundPoint(transform.position) + new Vector3(0f,AdditionalMove,0f);
+                    } else {
+                         if(scale == Size.NORMAL){
+                            AdditionalMove = 0.7f;
+                        } else if(scale == Size.BEEG){
+                            AdditionalMove = 2f;
+                        } else if(scale == Size.SMOL){
+                            AdditionalMove = -3f;
+                        } 
+                        transform.position = new Vector3(transform.position.x, transform.position.y + AdditionalMove, transform.position.z);
+                    }
                 }
                 setVignette(1f/scale);
             }
@@ -280,7 +397,7 @@ namespace SmolKnight
         }
 
         private static void nextScale(){
-            if(!enableInteractivity || Instance.isHKMP) { 
+            if(!saveSettings.enableSwitching || Instance.isHKMP) { 
                 return;
             }
 
@@ -310,6 +427,27 @@ namespace SmolKnight
                 Username.localScale = ulocalScale;
             }
 
+        }
+
+        private void scalePrefabs(){
+            return;
+           var h = HeroController.instance;
+           GameObject[] prefabs = {h.spell1Prefab,
+                                   h.grubberFlyBeamPrefabL,
+                                   h.grubberFlyBeamPrefabR,
+                                   h.grubberFlyBeamPrefabU,
+                                   h.grubberFlyBeamPrefabD,
+                                   h.grubberFlyBeamPrefabL_fury,
+                                   h.grubberFlyBeamPrefabR_fury,
+                                   h.grubberFlyBeamPrefabU_fury,
+                                   h.grubberFlyBeamPrefabD_fury,
+                                   h.corpsePrefab};
+            for(var i=0;i < prefabs.Length;i++){
+               var localScale = prefabs[i].transform.localScale;
+               localScale.x = localScale.x * currentScale;
+               localScale.y = localScale.y * currentScale;
+               prefabs[i].transform.localScale = localScale;
+            }
         }
 
         private void UpdateHKMPPlayers()
@@ -359,16 +497,20 @@ namespace SmolKnight
                 {
                     currentScale = Size.NORMAL;
                     Normal(playerTransform);
+                    Instance.scalePrefabs();
                 } 
                 else if((tmp.text.Contains("SMOL")) && !playerIsSmol)
                 {
                     currentScale = Size.SMOL;
                     Smol(playerTransform);
+                    Instance.scalePrefabs();
+
                 } 
                 else if((tmp.text.Contains("BEEG") && !playerIsBeeg))
                 {
                     currentScale = Size.BEEG;
                     Beeg(playerTransform);
+                    Instance.scalePrefabs();
                 }    
                 fixPlayerName(playerTransform,hkmpUsername,currentScale);
                 SoundMagic();            
@@ -413,19 +555,34 @@ namespace SmolKnight
                 }
             }
         }
+
+        public void applyTransformation(){
+            UpdatePlayer();
+            PlayTransformEffects();
+            SoundMagic();
+            setSaveSettings();
+            lastCheckTime = DateTime.Now;
+        }
         private void HeroUpdate()
         {
-            var currentTime = DateTime.Now;
+            if (!saveSettings.startupSelection && Input.anyKey)
+            {
+                startUpScreen();
+            }
 
+            var currentTime = DateTime.Now;
             if (settings.keybinds.Transform.WasPressed)
             {
                 nextScale();
-                UpdatePlayer();
-                PlayTransformEffects();
-                SoundMagic();
-                lastCheckTime = currentTime;
+                ModMenu.RefreshOptions();
+                applyTransformation();
             }
+            
 
+            var dg = GameObject.Find("door_dreamReturn");
+            if(dg != null){
+                scaleGO(dg,currentScale);
+            }
             if (isHKMP == true && (currentTime - lastHKMPCheckTime).TotalMilliseconds > 1000) {
                 UpdateHKMPPlayers();
                 lastHKMPCheckTime = currentTime;
@@ -433,6 +590,19 @@ namespace SmolKnight
 
             if ((currentTime - lastCheckTime).TotalMilliseconds > 5000) {
                 UpdatePlayer();
+
+                /*
+                var g = (GameObject[])UnityEngine.Object.FindObjectsOfType(typeof(GameObject)) ;
+                foreach(var go in g){
+                    if(go.name.ToLower().Contains("dream")){
+                        if(go.name.StartsWith("Dream_Gate")){
+                            Log(go.name);
+                            if(go.name.Contains("Other"))
+                            scaleGO(go,currentScale);
+                        }
+                    }
+                }
+                */
                 lastCheckTime = currentTime;
             }
         }
@@ -449,13 +619,15 @@ namespace SmolKnight
         private void DoSetScale(On.HutongGames.PlayMaker.Actions.SetScale.orig_DoSetScale orig, HutongGames.PlayMaker.Actions.SetScale self)
         {
             orig(self);
-            if (self.gameObject != null && 
-                self.gameObject.GameObject != null &&
-                self.gameObject.GameObject.Value != null &&
-                self.gameObject.GameObject.Value == HeroController.instance.gameObject)
+
+            if(self.gameObject == null || self.gameObject.GameObject == null || self.gameObject.GameObject.Value == null){
+                return;
+            }
+            if (self.gameObject.GameObject.Value == HeroController.instance.gameObject)
             {
                 UpdatePlayer();
             }
+            
         }
     }
 }

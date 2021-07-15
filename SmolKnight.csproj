@@ -64,9 +64,23 @@
         <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>$(VanillaFiles)\UnityEngine.AudioModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>$(VanillaFiles)\UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>$(VanillaFiles)\UnityEngine.Physics2DModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>$(VanillaFiles)\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
+        
+      <Reference Include="UnityEngine.InputLegacyModule">
+        <HintPath>$(VanillaFiles)\UnityEngine.InputLegacyModule.dll</HintPath>
+      </Reference>
+        <Reference Include="UnityEngine.UI">
+          <HintPath>$(VanillaFiles)\UnityEngine.UI.dll</HintPath>
+        </Reference>
+        
         <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>$(VanillaFiles)\UnityEngine.UIModule.dll</HintPath>
         </Reference>
