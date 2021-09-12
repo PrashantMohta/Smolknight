@@ -70,10 +70,9 @@ namespace SmolKnight
 
         public bool ToggleButtonInsideMenu => false;
 
-
-        public static void startUpScreen(){
-            ModMenu.skipPauseMenu = true;
-            GameManager.instance.StartCoroutine(GameManager.instance.PauseToggleDynamicMenu(ModMenu.Screen));
+        public static void startUpScreen(){            
+                ModMenu.skipPauseMenu = true;
+                GameManager.instance.StartCoroutine(GameManager.instance.PauseToggleDynamicMenu(ModMenu.Screen));
         }
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
@@ -440,9 +439,7 @@ namespace SmolKnight
         }
         private void HeroUpdate()
         {
-            
-            if (!saveSettings.startupSelection && Input.anyKey)
-            {
+            if(!saveSettings.startupSelection && GameManager.instance.IsGameplayScene() && HeroController.instance.cState.onGround && Input.anyKey){
                 startUpScreen();
             }
 

@@ -49,6 +49,7 @@ namespace SmolKnight
 
         public static void startPlaying(){
                 UIManager.instance.TogglePauseGame();
+                UIManager.instance.UIClearPauseMenu();
                 UIManager.instance.UIClosePauseMenu();
         }
         public static void ApplySetting(){
@@ -77,7 +78,15 @@ namespace SmolKnight
         public static void GoToModListMenu(object _) {
             GoToModListMenu();
         }
-        public static void GoToModListMenu() => (UIManager.instance).UIGoToDynamicMenu(modListMenu);
+        public static void GoToModListMenu() {
+            if(!SmolKnight.saveSettings.startupSelection && skipPauseMenu){
+                startPlaying();
+            } else {
+                UIManager.instance.UIGoToDynamicMenu(modListMenu); 
+            }
+            SmolKnight.saveSettings.startupSelection = true;
+            skipPauseMenu = false;
+        }
 
         public static void RefreshOptions(){
             currentScale = SmolKnight.currentScale;
@@ -109,7 +118,7 @@ namespace SmolKnight
                         ApplySetting = (_, i) => setSizeOption(i),
                         RefreshSetting = (s, _) => s.optionList.SetOptionTo(getSizeOption()),
                                
-                        CancelAction = GoToModListMenu,
+                        CancelAction = _ => { BackSetting(); },
                         Description = new DescriptionInfo
                         {
                             Text = "",
@@ -129,7 +138,7 @@ namespace SmolKnight
                         ApplySetting = (_, i) => setAdhocSwitching(i),
                         RefreshSetting = (s, _) => s.optionList.SetOptionTo(getAdhocSwitching()),
                                
-                        CancelAction = GoToModListMenu,
+                        CancelAction = _ => { BackSetting(); },
                         Description = new DescriptionInfo
                         {
                             Text = "Recommended for BEEG knight",
@@ -156,7 +165,7 @@ namespace SmolKnight
                     new KeybindConfig
                     {
                         Label = "Transform",
-                        CancelAction = _ => UIManager.instance.UIGoToDynamicMenu(modListMenu)
+                        CancelAction = _ => { BackSetting(); },
                     },out TransformKey
                 );
                 
@@ -234,7 +243,7 @@ namespace SmolKnight
                 builder.AddContent(new NullContentLayout(), c => c.AddScrollPaneContent(
                 new ScrollbarConfig
                 {
-                    CancelAction = _ => (UIManager.instance).UIGoToDynamicMenu(modListMenu),
+                    CancelAction = _ => { BackSetting(); },
                     Navigation = new Navigation
                     {
                         mode = Navigation.Mode.Explicit,
