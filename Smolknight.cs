@@ -74,7 +74,18 @@ namespace SmolKnight
                 ModMenu.skipPauseMenu = true;
                 GameManager.instance.StartCoroutine(GameManager.instance.PauseToggleDynamicMenu(ModMenu.Screen));
         }
-
+        public static IEnumerator HideCurrentMenu(On.UIManager.orig_HideCurrentMenu orig,UIManager self){
+            Modding.Logger.Log(self.menuState);
+            if(self.menuState == MainMenuState.DYNAMIC_MENU &&
+             self.currentDynamicMenu == ModMenu.Screen && 
+             !SmolKnight.saveSettings.startupSelection && ModMenu.skipPauseMenu){
+                ModMenu.startPlaying();
+                yield return self.HideMenu(ModMenu.Screen);
+                yield return null;
+            } else {
+                yield return orig(self);
+            }
+        }
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
             ModMenu.saveModsMenuScreen(modListMenu);
@@ -103,6 +114,8 @@ namespace SmolKnight
             On.HutongGames.PlayMaker.Actions.SetScale.DoSetScale += DoSetScale;
             On.HutongGames.PlayMaker.Actions.RayCast2d.OnEnter += OnRayCast2d;
 
+
+            On.UIManager.HideCurrentMenu += HideCurrentMenu;
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += ShinyItemStandPatcher.StartPatchCoro;
         }
         private void OnRayCast2d(On.HutongGames.PlayMaker.Actions.RayCast2d.orig_OnEnter orig, HutongGames.PlayMaker.Actions.RayCast2d self){

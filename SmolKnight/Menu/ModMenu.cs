@@ -1,8 +1,13 @@
 ﻿using Modding;
 using Modding.Menu;
 using Modding.Menu.Config;
+
+using static Modding.Logger;
+
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace SmolKnight
 {
@@ -47,12 +52,22 @@ namespace SmolKnight
             return adhocSwitching ? 0 : 1;
         }
 
+        public static IEnumerator closePauseMenu(){
+            //UIManager.instance.UIGoToDynamicMenu(modListMenu); 
+            yield return null;
+            //UIManager.instance.UIGoToPauseMenu();
+            //yield return new WaitForSeconds(0.1f);
+            //yield return UIManager.instance.UIClosePauseMenu();
+            UIManager.instance.TogglePauseGame();
+        }
         public static void startPlaying(){
-                UIManager.instance.TogglePauseGame();
-                UIManager.instance.UIClearPauseMenu();
-                UIManager.instance.UIClosePauseMenu();
+            Log("start playing");
+            SmolKnight.saveSettings.startupSelection = true;
+            skipPauseMenu = false;
+            GameManager.instance.StartCoroutine(closePauseMenu());
         }
         public static void ApplySetting(){
+            Log("Apply Setting");
             if(!SmolKnight.saveSettings.startupSelection && skipPauseMenu){
                 startPlaying();
             } else {
@@ -61,31 +76,27 @@ namespace SmolKnight
             SmolKnight.currentScale = currentScale;
             SmolKnight.saveSettings.enableSwitching = adhocSwitching;
             SmolKnight.Instance.applyTransformation();
-            SmolKnight.saveSettings.startupSelection = true;
-            skipPauseMenu = false;
         }
 
         public static void BackSetting(){
+            Log("Back Setting");
             if(!SmolKnight.saveSettings.startupSelection && skipPauseMenu){
                 startPlaying();
             } else {
                 UIManager.instance.UIGoToDynamicMenu(modListMenu); 
             }
-            SmolKnight.saveSettings.startupSelection = true;
-            skipPauseMenu = false;
         }
 
         public static void GoToModListMenu(object _) {
             GoToModListMenu();
         }
         public static void GoToModListMenu() {
+            Log("Mod list menu");
             if(!SmolKnight.saveSettings.startupSelection && skipPauseMenu){
                 startPlaying();
             } else {
                 UIManager.instance.UIGoToDynamicMenu(modListMenu); 
             }
-            SmolKnight.saveSettings.startupSelection = true;
-            skipPauseMenu = false;
         }
 
         public static void RefreshOptions(){
@@ -244,6 +255,7 @@ namespace SmolKnight
                 new ScrollbarConfig
                 {
                     CancelAction = _ => { BackSetting(); },
+                    
                     Navigation = new Navigation
                     {
                         mode = Navigation.Mode.Explicit,
