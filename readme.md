@@ -1,1 +1,0 @@
-Smolknight is a Hollow Knight mod that makes your player character smol 
