@@ -8,6 +8,7 @@ namespace SmolKnight
 
     public class SaveModSettings  {
         public string currentScale {get; set;} = "SMOL";
+        public float shadeScale {get; set;} = Size.SMOL;
         public bool enableSwitching {get; set;} = false;
         public bool startupSelection {get; set;} = false;
 

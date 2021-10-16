@@ -34,9 +34,18 @@ namespace SmolKnight
         public DateTime lastHKMPCheckTime = DateTime.Now;
         public DateTime lastCheckTime = DateTime.Now;    
 
+        private string getVersionSafely(){
+            return Satchel.AssemblyUtils.GetAssemblyVersionHash();
+        }
         public override string GetVersion()
         {
-            return "v1.5-01";
+            var version = "Satchel not found";
+            try{
+                version = getVersionSafely();
+            } catch(Exception e){
+
+            }
+            return version;
         }
         
         public static GlobalModSettings settings { get; set; } = new GlobalModSettings();
@@ -100,6 +109,7 @@ namespace SmolKnight
             ILHooks.InitCustomHooks();
 
             ModHooks.HeroUpdateHook += HeroUpdate;
+            ModHooks.BeforePlayerDeadHook += OnDeath;
             ModHooks.AfterSavegameLoadHook += LoadSaveGame;
             ModHooks.SetPlayerFloatHook += PlayerDataPatcher.SetPlayerFloat;
             ModHooks.GetPlayerFloatHook += PlayerDataPatcher.GetPlayerFloat;
@@ -226,12 +236,19 @@ namespace SmolKnight
             var wait = orig(self,enterGate,delayBeforeEnter);
             UpdatePlayer();
             UpdateHKMPPlayers();
+            UpdateShade();
             yield return wait;
 
         }
+
+        public void OnDeath() {
+            saveSettings.shadeScale = currentScale;
+        }
+        private void UpdateShade(){
+            SceneManager sm = GameManager.instance.GetSceneManager().GetComponent<SceneManager>();
+            scaleGO(sm.hollowShadeObject,saveSettings.shadeScale);
+        }
         
-
-
         private static void Smol(Transform transform)
         {
             SetScale(transform,Size.SMOL);  
@@ -307,13 +324,13 @@ namespace SmolKnight
                         } 
                         transform.position = new Vector3(transform.position.x, transform.position.y + AdditionalMove, transform.position.z);
                     }
+                    VignettePatcher.Patch(1f/scale);
                 }
-                VignettePatcher.Patch(1f/scale);
             }
 
             if (Math.Abs(localScale.x - x) > Mathf.Epsilon || Math.Abs(localScale.y - y) > Mathf.Epsilon) 
             { 
-                transform.localScale = new Vector3(x, y, 1f);
+                transform.localScale = new Vector3(x, y, transform.localScale.z);
             }
         }
 
