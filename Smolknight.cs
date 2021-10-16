@@ -117,6 +117,7 @@ namespace SmolKnight
             On.HeroController.FaceLeft += FaceLeft;
             On.HeroController.FaceRight += FaceRight;
             On.HeroController.EnterScene += EnterScene;
+            On.HeroController.FinishedEnteringScene += FinishedEnteringScene;
             On.HeroController.FindGroundPointY += FindGroundPointY;
             On.HeroController.FindGroundPoint += FindGroundPoint;
             
@@ -214,10 +215,14 @@ namespace SmolKnight
         //GameManager.BeginScene
         //PositionHeroAtSceneEntrance
         
+        private TransitionPoint originalGate;
+        private Vector3 originalGatePosition;
         private IEnumerator EnterScene(On.HeroController.orig_EnterScene orig,HeroController self, TransitionPoint enterGate, float delayBeforeEnter){
 
             float AdditionalMovex = 0, AdditionalMovey = 0;
             var gateposition = enterGate.GetGatePosition();
+            originalGate = enterGate;
+            originalGatePosition = enterGate.transform.position;
             //This is needed because beeg knight can go into infinite loading scene loop because its beeg    
             if (currentScale == Size.BEEG) 
             {
@@ -238,7 +243,14 @@ namespace SmolKnight
             UpdateHKMPPlayers();
             UpdateShade();
             yield return wait;
+        }
 
+        private void FinishedEnteringScene(On.HeroController.orig_FinishedEnteringScene orig,HeroController self,bool setHazardMarker, bool preventRunBool){
+            if(originalGate != null){
+                originalGate.transform.position = originalGatePosition;
+            }
+            originalGate = null; // do not keep this gate anymore
+            orig(self,setHazardMarker,preventRunBool);
         }
 
         public void OnDeath() {
