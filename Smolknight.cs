@@ -13,7 +13,6 @@ using MonoMod.Cil;
 using TMPro;
 using MonoMod.RuntimeDetour;
 
-
 using static Satchel.FsmUtil;
 using static Satchel.GameObjectUtils;
 using static Satchel.WavUtils;
@@ -116,8 +115,8 @@ namespace SmolKnight
 
             On.HeroController.FaceLeft += FaceLeft;
             On.HeroController.FaceRight += FaceRight;
-            On.HeroController.EnterScene += EnterScene;
-            On.HeroController.FinishedEnteringScene += FinishedEnteringScene;
+            On.HeroController.EnterScene += GatePatcher.EnterScene;
+            On.HeroController.FinishedEnteringScene += GatePatcher.FinishedEnteringScene;
             On.HeroController.FindGroundPointY += FindGroundPointY;
             On.HeroController.FindGroundPoint += FindGroundPoint;
             
@@ -215,48 +214,11 @@ namespace SmolKnight
         //GameManager.BeginScene
         //PositionHeroAtSceneEntrance
         
-        private TransitionPoint originalGate;
-        private Vector3 originalGatePosition;
-        private IEnumerator EnterScene(On.HeroController.orig_EnterScene orig,HeroController self, TransitionPoint enterGate, float delayBeforeEnter){
-
-            float AdditionalMovex = 0, AdditionalMovey = 0;
-            var gateposition = enterGate.GetGatePosition();
-            originalGate = enterGate;
-            originalGatePosition = enterGate.transform.position;
-            //This is needed because beeg knight can go into infinite loading scene loop because its beeg    
-            if (currentScale == Size.BEEG) 
-            {
-                if (gateposition == GatePosition.left) {
-                    AdditionalMovex = Size.BEEG_OFFSET;
-                } else if (gateposition == GatePosition.right) {
-                    AdditionalMovex = -Size.BEEG_OFFSET;
-                }
-
-                if (gateposition == GatePosition.bottom) {
-                    AdditionalMovey = Size.BEEG_OFFSET;
-                }
-                enterGate.transform.position = enterGate.transform.position + new Vector3(AdditionalMovex, AdditionalMovey,0f);
-            }
-            
-            var wait = orig(self,enterGate,delayBeforeEnter);
-            UpdatePlayer();
-            UpdateHKMPPlayers();
-            UpdateShade();
-            yield return wait;
-        }
-
-        private void FinishedEnteringScene(On.HeroController.orig_FinishedEnteringScene orig,HeroController self,bool setHazardMarker, bool preventRunBool){
-            if(originalGate != null){
-                originalGate.transform.position = originalGatePosition;
-            }
-            originalGate = null; // do not keep this gate anymore
-            orig(self,setHazardMarker,preventRunBool);
-        }
 
         public void OnDeath() {
             saveSettings.shadeScale = currentScale;
         }
-        private void UpdateShade(){
+        public void UpdateShade(){
             SceneManager sm = GameManager.instance.GetSceneManager().GetComponent<SceneManager>();
             scaleGO(sm.hollowShadeObject,saveSettings.shadeScale);
         }
@@ -400,7 +362,7 @@ namespace SmolKnight
             }
         }
 
-        private void UpdateHKMPPlayers()
+        public void UpdateHKMPPlayers()
         {
             foreach(GameObject gameObj in GameObject.FindObjectsOfType<GameObject>())
             {
@@ -430,7 +392,7 @@ namespace SmolKnight
             }
         }
 
-        private void UpdatePlayer()
+        public void UpdatePlayer()
         {
             var playerTransform = HeroController.instance.gameObject.transform;
             var hkmpUsername = playerTransform.Find("Username");
