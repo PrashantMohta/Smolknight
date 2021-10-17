@@ -448,7 +448,7 @@ namespace SmolKnight
             }
 
             var currentTime = DateTime.Now;
-            if (settings.keybinds.Transform.WasPressed)
+            if (settings.keybinds.Transform.WasPressed || settings.buttonbinds.Transform.WasPressed)
             {
                 nextScale();
                 ModMenu.RefreshOptions();

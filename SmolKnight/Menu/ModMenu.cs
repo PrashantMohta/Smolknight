@@ -6,6 +6,7 @@ using static Modding.Logger;
 
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -110,6 +111,20 @@ namespace SmolKnight
         }
         public static MenuOptionHorizontal SizeOptionsSelector,AdhocSwitchingSelector;
 
+        private static void safelyAddControllerBinding(ContentArea area){
+            
+            area.AddButtonBind(
+                    "TransformBindJoy",
+                    SmolKnight.settings.buttonbinds.Transform,
+                    new ButtonBindConfig
+                    {
+                        Label = "Controller",
+                        CancelAction = _ => { BackSetting(); },
+                    },out var TransformButton
+                );
+           
+                
+        }
         private static void addMenuOptions(ContentArea area){
 
             area.AddTextPanel("HelpText",
@@ -179,7 +194,11 @@ namespace SmolKnight
                         CancelAction = _ => { BackSetting(); },
                     },out TransformKey
                 );
-                
+
+            try{  
+                safelyAddControllerBinding(area);
+            } catch (Exception e){}
+
             area.AddTextPanel("HelpText3",
                     new RelVector2(new Vector2(850f, 125f)),
                     new TextPanelConfig{

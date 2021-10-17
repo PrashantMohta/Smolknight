@@ -19,7 +19,10 @@ namespace SmolKnight
         public string Version {get; set;} = "";
         
         [JsonConverter(typeof(PlayerActionSetConverter))]
-        public KeyBinds keybinds = new KeyBinds();
+        public KeyBinds keybinds = new KeyBinds(false);
+
+        [JsonConverter(typeof(PlayerActionSetConverter))]
+        public KeyBinds buttonbinds = new KeyBinds(true);
     }
 
     public class KeyBinds : PlayerActionSet
@@ -29,12 +32,20 @@ namespace SmolKnight
         public KeyBinds()
         {
             Transform = CreatePlayerAction("Transform");
-            DefaultBinds();
+            DefaultBinds(false);        }
+        public KeyBinds(bool isButton)
+        {
+            Transform = CreatePlayerAction("Transform");
+            DefaultBinds(isButton);
         }
 
-        private void DefaultBinds()
+        private void DefaultBinds(bool isButton)
         {
-            Transform.AddDefaultBinding(Key.Backspace);
+            if(isButton){
+                Transform.AddDefaultBinding(InputControlType.None);
+            } else {
+                Transform.AddDefaultBinding(Key.Backspace);
+            }
         }
     }
 }
