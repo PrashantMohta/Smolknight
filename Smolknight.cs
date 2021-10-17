@@ -82,6 +82,7 @@ namespace SmolKnight
                 ModMenu.skipPauseMenu = true;
                 GameManager.instance.StartCoroutine(GameManager.instance.PauseToggleDynamicMenu(ModMenu.Screen));
         }
+
         public static IEnumerator HideCurrentMenu(On.UIManager.orig_HideCurrentMenu orig,UIManager self){
             Modding.Logger.Log(self.menuState);
             if(self.menuState == MainMenuState.DYNAMIC_MENU &&
@@ -394,6 +395,8 @@ namespace SmolKnight
 
         public void UpdatePlayer()
         {
+            if(HeroController.instance == null) { return;} 
+
             var playerTransform = HeroController.instance.gameObject.transform;
             var hkmpUsername = playerTransform.Find("Username");
             var localScale = playerTransform.localScale;
@@ -435,6 +438,7 @@ namespace SmolKnight
             }
         }
         public void applyTransformation(){
+            if(HeroController.instance == null) { return; } 
             UpdatePlayer();
             PlayTransformEffects();
             SFX.ChangePitch();
