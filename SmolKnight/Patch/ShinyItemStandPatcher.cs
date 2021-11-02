@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Modding.Logger;
+using static Satchel.GameObjectUtils;
 
 namespace SmolKnight{
     public static class ShinyItemStandPatcher{
@@ -48,15 +49,31 @@ namespace SmolKnight{
                     Shiney.transform.position = pos;
                 }
             } 
+            SpawnForTesting(scene.name);
+        }
+
+        public static void SpawnForTesting( string scene){
+            if(scene == "Town"){
+              var go = PreloadManager.GetGameObject("deathloodle");
+              go.LogWithChildren();
+              var spawned = GameObject.Instantiate(go);
+              spawned.transform.position = HeroController.instance.transform.position;
+
+              var spritego = go.Find("Sprite"); 
+              //var outTex = spritego.GetComponent<tk2dSprite>().GetCurrentSpriteDef().material.mainTexture as Texture2D;
+              //Satchel.TextureUtils.WriteTextureToFile(outTex, $"{Satchel.AssemblyUtils.getCurrentDirectory()}/deathloodle.png");
+              spritego.GetComponent<tk2dSprite>().GetCurrentSpriteDef().material.mainTexture = Satchel.AssemblyUtils.GetTextureFromResources("deathloodle.png");  
+              spawned = GameObject.Instantiate(go);
+              spawned.transform.position = HeroController.instance.transform.position;
+            }
         }
 
 
         public static void StartPatchCoro(Scene scene,LoadSceneMode mode)
         {
             GameManager.instance.StartCoroutine(Patch(scene));
-
         }
 
     }
 
-}
+}   

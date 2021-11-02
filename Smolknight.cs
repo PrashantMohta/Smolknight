@@ -101,9 +101,22 @@ namespace SmolKnight
             return ModMenu.CreatemenuScreen();
         }
 
-        public override void Initialize()
+        public override List<(string, string)> GetPreloadNames()
+        {
+            return new List<(string, string)>
+            {
+                ("Room_Colosseum_Gold", "Colosseum Manager/Waves/Wave 10/Colosseum Cage Small (5)"),
+                ("Cliffs_01","Cornifer Card")
+            };   
+        }
+        public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
         {
             Instance = this;
+            PreloadManager
+            .AddDeathLoodle(preloadedObjects["Room_Colosseum_Gold"]["Colosseum Manager/Waves/Wave 10/Colosseum Cage Small (5)"]);
+            PreloadManager
+            .AddPreload("card",preloadedObjects["Cliffs_01"]["Cornifer Card"]);
+            CustomArrowPrompt.Prepare(PreloadManager.GetGameObject("card"));
 
             IL.HeroController.Update10 += ILHooks.BypassCheckForKnightScaleRange;
             ILHooks.InitCustomHooks();
