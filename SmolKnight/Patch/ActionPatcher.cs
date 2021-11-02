@@ -18,8 +18,6 @@ namespace SmolKnight
             orig(self);
         }
 
-
-
         private static IEnumerator scaleFireballCoro(GameObject go){
             yield return null;
             go.scaleGO(SmolKnight.currentScale);
@@ -77,7 +75,13 @@ namespace SmolKnight
             {
                 SmolKnight.Instance.UpdatePlayer();
             }
-            
+        }
+
+        public static void CreateObject(On.HutongGames.PlayMaker.Actions.CreateObject.orig_OnEnter orig,HutongGames.PlayMaker.Actions.CreateObject self){
+            orig(self);
+            if(self.storeObject.Value.name.StartsWith("Shadow Ball")){ //shade fireball
+                self.storeObject.Value.scaleGO(SmolKnight.saveSettings.shadeScale);
+            }
         }
        
    }
