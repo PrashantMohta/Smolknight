@@ -35,7 +35,7 @@ namespace SmolKnight
             var wait = orig(self,enterGate,delayBeforeEnter);
             SmolKnight.Instance.UpdatePlayer();
             SmolKnight.Instance.UpdateHKMPPlayers();
-            SmolKnight.Instance.UpdateShade();
+            Shade.UpdateShade();
             yield return wait;
         }
 

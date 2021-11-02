@@ -12,7 +12,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using TMPro;
 using MonoMod.RuntimeDetour;
-
+using Satchel;
 using static Satchel.FsmUtil;
 using static Satchel.GameObjectUtils;
 using static Satchel.WavUtils;
@@ -104,137 +104,49 @@ namespace SmolKnight
         public override void Initialize()
         {
             Instance = this;
-            
+
             IL.HeroController.Update10 += ILHooks.BypassCheckForKnightScaleRange;
             ILHooks.InitCustomHooks();
 
             ModHooks.HeroUpdateHook += HeroUpdate;
-            ModHooks.BeforePlayerDeadHook += OnDeath;
+            ModHooks.BeforePlayerDeadHook += Shade.OnHeroDeath;
             ModHooks.AfterSavegameLoadHook += LoadSaveGame;
+
             ModHooks.SetPlayerFloatHook += PlayerDataPatcher.SetPlayerFloat;
             ModHooks.GetPlayerFloatHook += PlayerDataPatcher.GetPlayerFloat;
 
-            On.HeroController.FaceLeft += FaceLeft;
-            On.HeroController.FaceRight += FaceRight;
+            On.HeroController.FaceLeft += HeroControllerPatcher.FaceLeft;
+            On.HeroController.FaceRight += HeroControllerPatcher.FaceRight;
+            On.HeroController.FindGroundPointY += HeroControllerPatcher.FindGroundPointY;
+            On.HeroController.FindGroundPoint += HeroControllerPatcher.FindGroundPoint;
+            
             On.HeroController.EnterScene += GatePatcher.EnterScene;
             On.HeroController.FinishedEnteringScene += GatePatcher.FinishedEnteringScene;
-            On.HeroController.FindGroundPointY += FindGroundPointY;
-            On.HeroController.FindGroundPoint += FindGroundPoint;
             
-            On.HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool.OnEnter += OnSpellSpawn;
-            On.HutongGames.PlayMaker.Actions.SetScale.DoSetScale += DoSetScale;
-            On.HutongGames.PlayMaker.Actions.RayCast2d.OnEnter += OnRayCast2d;
+            On.HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool.OnEnter += ActionPatcher.OnSpellSpawn;
+            On.HutongGames.PlayMaker.Actions.SetScale.DoSetScale += ActionPatcher.DoSetScale;
+            On.HutongGames.PlayMaker.Actions.RayCast2d.OnEnter += ActionPatcher.OnRayCast2d;
 
 
             On.UIManager.HideCurrentMenu += HideCurrentMenu;
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += ShinyItemStandPatcher.StartPatchCoro;
-        }
-        private void OnRayCast2d(On.HutongGames.PlayMaker.Actions.RayCast2d.orig_OnEnter orig, HutongGames.PlayMaker.Actions.RayCast2d self){
-            GameObject fromObj = self.Fsm.GetOwnerDefaultTarget(self.fromGameObject);
-            self.debug.Value = true;
-            if(fromObj.name == "Knight"){
-                self.distance.Value = 2f * currentScale;
-            }
-            orig(self);
-        }
-
-        private void scaleGO(GameObject go,float scale){
-            var localScale = go.transform.localScale;
-            localScale.x = localScale.x > 0 ? scale : -scale;
-            localScale.y = scale;
-            go.transform.localScale = localScale;
-        }
-
-        private IEnumerator scaleFireballCoro(GameObject go){
-            yield return null;
-            scaleGO(go,currentScale);
-            var blast = go.FindGameObjectInChildren("Fireball Blast");
-            var blastpos = blast.transform.position;
-            if(currentScale == Size.SMOL){
-                scaleGO(blast,currentScale * 2f);
-            }
-            var hgo = HeroController.instance.gameObject;
-            var heroCollider = hgo.GetComponent<BoxCollider2D>();
-            blastpos.y = heroCollider.bounds.center.y ;
-            blastpos.x = heroCollider.bounds.center.x - (hgo.transform.localScale.x > 0 ? currentScale : -currentScale);
-            blast.transform.position = blastpos;
-
-        }
-        
-        private void OnSpellSpawn(On.HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool.orig_OnEnter orig, HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool self){
-            if(self.gameObject.Value){
-                var g = self.gameObject.Value;
-                if(g.name.StartsWith("Fireball")) {
-                    if(currentScale == Size.SMOL){
-                        var p = self.position.Value;
-                        p.y = -0.3f;
-                        self.position.Value = p;
-                    }
-                }
-            }
-            orig(self);
-            var go = self.storeObject.Value;
-            var localScale = go.transform.localScale;
-            if(go.name.StartsWith("dream_gate_object")){
-                //visually move the dreamgate when spawned 
-                var pos = go.transform.position;
-                if(currentScale == Size.SMOL){
-                    pos.y += Size.SMOL_OFFSET;
-                }
-                if(currentScale == Size.BEEG){
-                    pos.y -= Size.BEEG_OFFSET;
-                }
-                go.transform.position = pos;
-            }
-            if(go.name.StartsWith("Fireball")) {
-                scaleGO(go,currentScale);
-                GameManager.instance.StartCoroutine(scaleFireballCoro(go));
-            }
-        }
-
-        private float FindGroundPointY(On.HeroController.orig_FindGroundPointY orig,HeroController self,float x, float y,bool useExtended){
-           //This is needed to get smol knight on the floor
-           var posY = orig(self,x, y,useExtended);
-           if (currentScale == Size.SMOL) 
-            {
-                posY -= 0.3f;
-            }
-            return posY;
-        }
-        private Vector3 FindGroundPoint(On.HeroController.orig_FindGroundPoint orig,HeroController self,Vector2 startPoint,bool useExtended){
-           //This is needed to get smol knight on the floor
-           var pos = orig(self,startPoint,useExtended);
-           if (currentScale == Size.SMOL) 
-            {
-                pos.y -= 0.3f;
-            }
-            return pos;
-        }
+        }        
 
         //warpToDreamGate
         //GameManager.BeginScene
         //PositionHeroAtSceneEntrance
-        
-
-        public void OnDeath() {
-            saveSettings.shadeScale = currentScale;
-        }
-        public void UpdateShade(){
-            SceneManager sm = GameManager.instance.GetSceneManager().GetComponent<SceneManager>();
-            scaleGO(sm.hollowShadeObject,saveSettings.shadeScale);
-        }
-        
+                
         private static void Smol(Transform transform)
         {
-            SetScale(transform,Size.SMOL);  
+            transform.SetScale(Size.SMOL);  
         }
         private static void Normal(Transform transform)
         {
-            SetScale(transform,Size.NORMAL);
+            transform.SetScale(Size.NORMAL);
         }
         private static void Beeg(Transform transform)
         {
-            SetScale(transform,Size.BEEG);
+            transform.SetScale(Size.BEEG);
         }
         
         private static void InteractiveScale(Transform transform){
@@ -253,60 +165,6 @@ namespace SmolKnight
         private void PlayTransformEffects(){
             HeroController.instance.GetComponent<SpriteFlash>().flashFocusHeal();
             SFX.PlayTransformSound();
-        }
-
-        private static void SetScale(Transform transform,float scale){
-            var localScale = transform.localScale;
-            var x = scale;
-            var y = scale;
-            
-            //checks for looking left or right
-            if (localScale.x < 0)
-            {
-                x = -scale;
-            }
-            if (localScale.y < 0)
-            {
-                y = -scale;
-            }
-
-            //if we need to increase the light 
-            //var LightControl = transform.Find("HeroLight").gameObject.LocateMyFSM("HeroLight Control");
-            //LightControl.FsmVariables.FindFsmVector3("Damage Scale").Value = new Vector2(1.5f * 1.5f,1.5f * 1.5f);
-            //LightControl.FsmVariables.FindFsmVector3("Idle Scale").Value = new Vector2(3f * 1.5f,3f * 1.5f);
-
-            if(transform.gameObject == HeroController.instance.gameObject)
-            {
-                float AdditionalMove = 0f;
-                //try to make sure player stays above the ground when rescaling
-                if(Math.Abs(localScale.y) != scale){
-                    if(HeroController.instance.cState.onGround){
-                        if(scale == Size.NORMAL){
-                            AdditionalMove = 0f;
-                        } else if(scale == Size.BEEG){
-                            AdditionalMove = 1f;
-                        } else if(scale == Size.SMOL){
-                            AdditionalMove = -1.5f;
-                        } 
-                        transform.position = HeroController.instance.FindGroundPoint(transform.position) + new Vector3(0f,AdditionalMove,0f);
-                    } else {
-                         if(scale == Size.NORMAL){
-                            AdditionalMove = 0.7f;
-                        } else if(scale == Size.BEEG){
-                            AdditionalMove = 2f;
-                        } else if(scale == Size.SMOL){
-                            AdditionalMove = -3f;
-                        } 
-                        transform.position = new Vector3(transform.position.x, transform.position.y + AdditionalMove, transform.position.z);
-                    }
-                    VignettePatcher.Patch(1f/scale);
-                }
-            }
-
-            if (Math.Abs(localScale.x - x) > Mathf.Epsilon || Math.Abs(localScale.y - y) > Mathf.Epsilon) 
-            { 
-                transform.localScale = new Vector3(x, y, transform.localScale.z);
-            }
         }
 
         private static void nextScale(){
@@ -469,28 +327,6 @@ namespace SmolKnight
                 lastCheckTime = currentTime;
             }
         }
-        private void FaceLeft(On.HeroController.orig_FaceLeft orig, HeroController self)
-        {
-            orig(self);
-            UpdatePlayer();
-        }
-        private void FaceRight(On.HeroController.orig_FaceRight orig, HeroController self)
-        {
-            orig(self);
-            UpdatePlayer();
-        }
-        private void DoSetScale(On.HutongGames.PlayMaker.Actions.SetScale.orig_DoSetScale orig, HutongGames.PlayMaker.Actions.SetScale self)
-        {
-            orig(self);
-
-            if(self.gameObject == null || self.gameObject.GameObject == null || self.gameObject.GameObject.Value == null){
-                return;
-            }
-            if (self.gameObject.GameObject.Value == HeroController.instance.gameObject)
-            {
-                UpdatePlayer();
-            }
-            
-        }
+        
     }
 }
