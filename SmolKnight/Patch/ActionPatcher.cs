@@ -73,7 +73,7 @@ namespace SmolKnight
             }
             if (self.gameObject.GameObject.Value == HeroController.instance.gameObject)
             {
-                SmolKnight.Instance.UpdatePlayer();
+                Knight.UpdateLocalPlayer();
             }
         }
 

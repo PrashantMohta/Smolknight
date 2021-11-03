@@ -40,7 +40,11 @@ namespace SmolKnight
                         } else if(scale == Size.BEEG){
                             AdditionalMove = 1f;
                         } else if(scale == Size.SMOL){
-                            AdditionalMove = -1.5f;
+                            if(Math.Abs(localScale.y) == Size.BEEG){
+                                AdditionalMove = -1.5f;
+                            } else {
+                                AdditionalMove = -0.3f;
+                            }
                         } 
                         transform.position = HeroController.instance.FindGroundPoint(transform.position) + new Vector3(0f,AdditionalMove,0f);
                     } else {
@@ -62,12 +66,67 @@ namespace SmolKnight
                 transform.localScale = new Vector3(x, y, transform.localScale.z);
             }
         }
-        public static void scaleGO(this GameObject go,float scale){
+       public static void scaleGO(this GameObject go,float scale){
             var localScale = go.transform.localScale;
             localScale.x = localScale.x > 0 ? scale : -scale;
             localScale.y = scale;
             go.transform.localScale = localScale;
         }
        
+       public static void AdjustPlayerName(Transform Player , Transform Username,float currentPlayerScale){
+
+            if(currentPlayerScale == Size.NORMAL){
+                Username.position = Player.position + new Vector3(0, 1.25f, 0);
+            } else if(currentPlayerScale == Size.SMOL){
+                Username.position = Player.position + new Vector3(0, 0.75f, 0);
+            } else if(currentPlayerScale == Size.BEEG){
+                Username.position = Player.position + new Vector3(0, 2f, 0);
+            }
+
+            if(currentPlayerScale != Size.SMOL){ // because it looks absurd on smolknight
+                var ulocalScale = new Vector3(0.25f, 0.25f, Username.localScale.z);
+                ulocalScale.x = ulocalScale.x * 1/currentPlayerScale;
+                ulocalScale.y = ulocalScale.y * 1/currentPlayerScale;
+                Username.localScale = ulocalScale;
+            }
+
+        }
+
+
+        public static void Smol(Transform transform)
+        {
+            transform.SetScale(Size.SMOL);  
+        }
+        public static void Normal(Transform transform)
+        {
+            transform.SetScale(Size.NORMAL);
+        }
+        public static void Beeg(Transform transform)
+        {
+            transform.SetScale(Size.BEEG);
+        }
+
+        public static void InteractiveScale(Transform transform,float currentScale){
+            if(currentScale == Size.SMOL && !isPlayerSmol(transform)){
+                Smol(transform);
+                SFX.ChangePitch();
+            } else if(currentScale == Size.NORMAL && !isPlayerNormal(transform)){
+                Normal(transform);
+                SFX.ChangePitch();
+            } else if(currentScale == Size.BEEG && !isPlayerBeeg(transform)){
+                Beeg(transform);
+                SFX.ChangePitch();
+            }
+        }
+
+        public static bool isPlayerBeeg(Transform transform){
+           return Math.Abs(transform.localScale.x) == Size.BEEG && Math.Abs(transform.localScale.y) == Size.BEEG;
+        }
+        public static bool isPlayerNormal(Transform transform){
+           return Math.Abs(transform.localScale.x) == Size.NORMAL && Math.Abs(transform.localScale.y) == Size.NORMAL;
+        }
+        public static bool isPlayerSmol(Transform transform){
+            return Math.Abs(transform.localScale.x) == Size.SMOL && Math.Abs(transform.localScale.y) == Size.SMOL;
+        }
    }
 }

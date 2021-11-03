@@ -11,12 +11,12 @@ namespace SmolKnight
         public static void FaceLeft(On.HeroController.orig_FaceLeft orig, HeroController self)
         {
             orig(self);
-            SmolKnight.Instance.UpdatePlayer();
+            Knight.UpdateLocalPlayer();
         }
         public static void FaceRight(On.HeroController.orig_FaceRight orig, HeroController self)
         {
             orig(self);
-            SmolKnight.Instance.UpdatePlayer();
+            Knight.UpdateLocalPlayer();
         }
 
         public static float FindGroundPointY(On.HeroController.orig_FindGroundPointY orig,HeroController self,float x, float y,bool useExtended){

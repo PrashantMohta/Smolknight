@@ -95,24 +95,26 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="SmolKnight.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
+      <Compile Include="SmolKnight.cs" />
+      <Compile Include="Properties\AssemblyInfo.cs" />
+      <Compile Include="SmolKnight\Menu\ModMenu.cs" />
 
-        <Compile Include="SmolKnight\Menu\ModMenu.cs" />
-      <Compile Include="SmolKnight\Entities\Shade.cs" />        
+      <Compile Include="SmolKnight\Entities\Knight.cs" />  
+      <Compile Include="SmolKnight\Entities\Shade.cs" />  
 
       <Compile Include="SmolKnight\Patch\ActionPatcher.cs" />        
-        <Compile Include="SmolKnight\Patch\GatePatcher.cs" />        
-        <Compile Include="SmolKnight\Patch\ShinyItemStandPatcher.cs" />
-        <Compile Include="SmolKnight\Patch\VignettePatcher.cs" />
-        <Compile Include="SmolKnight\Patch\PlayerDataPatcher.cs" />
+      <Compile Include="SmolKnight\Patch\GatePatcher.cs" />        
+      <Compile Include="SmolKnight\Patch\ShinyItemStandPatcher.cs" />
+      <Compile Include="SmolKnight\Patch\VignettePatcher.cs" />
+      <Compile Include="SmolKnight\Patch\PlayerDataPatcher.cs" />
       <Compile Include="SmolKnight\Patch\HeroControllerPatcher.cs" />
-        <Compile Include="SmolKnight\Patch\ILHooks.cs" />
+      <Compile Include="SmolKnight\Patch\ILHooks.cs" />
 
+      <Compile Include="SmolKnight\HKMP.cs" />
       <Compile Include="SmolKnight\Utils.cs" />
-        <Compile Include="SmolKnight\SFX.cs" />
-        <Compile Include="SmolKnight\Size.cs" />
-        <Compile Include="SmolKnight\Settings.cs" />
+      <Compile Include="SmolKnight\SFX.cs" />
+      <Compile Include="SmolKnight\Size.cs" />
+      <Compile Include="SmolKnight\Settings.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     

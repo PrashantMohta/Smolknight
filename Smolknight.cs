@@ -25,12 +25,6 @@ namespace SmolKnight
 
         public static float currentScale = Size.SMOL;
         public static float GetCurrentScale() => currentScale;
-        private bool isHKMP = false;
-
-        private bool playerIsSmol = false;
-        private bool playerIsBeeg = false;
-
-        public DateTime lastHKMPCheckTime = DateTime.Now;
         public DateTime lastCheckTime = DateTime.Now;    
 
         private string getVersionSafely(){
@@ -136,40 +130,10 @@ namespace SmolKnight
         //warpToDreamGate
         //GameManager.BeginScene
         //PositionHeroAtSceneEntrance
-                
-        private static void Smol(Transform transform)
-        {
-            transform.SetScale(Size.SMOL);  
-        }
-        private static void Normal(Transform transform)
-        {
-            transform.SetScale(Size.NORMAL);
-        }
-        private static void Beeg(Transform transform)
-        {
-            transform.SetScale(Size.BEEG);
-        }
         
-        private static void InteractiveScale(Transform transform){
-            if(currentScale == Size.SMOL){
-                Smol(transform);
-                Instance.scalePrefabs();
-            } else if(currentScale == Size.NORMAL){
-                Normal(transform);
-                Instance.scalePrefabs();
-            } else if(currentScale == Size.BEEG){
-                Beeg(transform);
-                Instance.scalePrefabs();
-            }
-        }
-
-        private void PlayTransformEffects(){
-            HeroController.instance.GetComponent<SpriteFlash>().flashFocusHeal();
-            SFX.PlayTransformSound();
-        }
 
         private static void nextScale(){
-            if(!saveSettings.enableSwitching || Instance.isHKMP) { 
+            if(!saveSettings.enableSwitching || HKMP.isEnabledWithUserName()) { 
                 return;
             }
 
@@ -181,126 +145,11 @@ namespace SmolKnight
                 currentScale = Size.SMOL;
             }
         }
-
-        private void fixPlayerName(Transform Player , Transform Username,float currentPlayerScale){
-
-            if(currentPlayerScale == Size.NORMAL){
-                Username.position = Player.position + new Vector3(0, 1.25f, 0);
-            } else if(currentPlayerScale == Size.SMOL){
-                Username.position = Player.position + new Vector3(0, 0.75f, 0);
-            } else if(currentPlayerScale == Size.BEEG){
-                Username.position = Player.position + new Vector3(0, 2f, 0);
-            }
-
-            if(currentPlayerScale != Size.SMOL){ // because it looks absurd on smolknight
-                var ulocalScale = new Vector3(0.25f, 0.25f, Username.localScale.z);
-                ulocalScale.x = ulocalScale.x * 1/currentPlayerScale;
-                ulocalScale.y = ulocalScale.y * 1/currentPlayerScale;
-                Username.localScale = ulocalScale;
-            }
-
-        }
-
-        private void scalePrefabs(){
-            return;
-           var h = HeroController.instance;
-           GameObject[] prefabs = {h.spell1Prefab,
-                                   h.grubberFlyBeamPrefabL,
-                                   h.grubberFlyBeamPrefabR,
-                                   h.grubberFlyBeamPrefabU,
-                                   h.grubberFlyBeamPrefabD,
-                                   h.grubberFlyBeamPrefabL_fury,
-                                   h.grubberFlyBeamPrefabR_fury,
-                                   h.grubberFlyBeamPrefabU_fury,
-                                   h.grubberFlyBeamPrefabD_fury,
-                                   h.corpsePrefab};
-            for(var i=0;i < prefabs.Length;i++){
-               var localScale = prefabs[i].transform.localScale;
-               localScale.x = localScale.x * currentScale;
-               localScale.y = localScale.y * currentScale;
-               prefabs[i].transform.localScale = localScale;
-            }
-        }
-
-        public void UpdateHKMPPlayers()
-        {
-            foreach(GameObject gameObj in GameObject.FindObjectsOfType<GameObject>())
-            {
-                if(gameObj.name.StartsWith("Player Container"))
-                {
-                    var name = gameObj.transform.Find("Username");
-                    if( name == null){continue;}
-                    
-                    var tmp = name.gameObject.GetComponent<TextMeshPro>();
-                    if(tmp.text.Contains("SMOL"))
-                    {
-                        Smol(gameObj.transform);
-                        fixPlayerName(gameObj.transform,name,Size.SMOL);
-                    } 
-                    else  if(tmp.text.Contains("BEEG"))
-                    {   
-                        Beeg(gameObj.transform);
-                        fixPlayerName(gameObj.transform,name,Size.BEEG);
-                    } 
-                    else 
-                    {
-                        Normal(gameObj.transform);
-                        fixPlayerName(gameObj.transform,name,Size.NORMAL);
-                    }
-
-                }
-            }
-        }
-
-        public void UpdatePlayer()
-        {
-            if(HeroController.instance == null) { return;} 
-
-            var playerTransform = HeroController.instance.gameObject.transform;
-            var hkmpUsername = playerTransform.Find("Username");
-            var localScale = playerTransform.localScale;
-            
-            playerIsSmol = Math.Abs(localScale.x) == Size.SMOL && Math.Abs(localScale.y) == Size.SMOL;
-            playerIsBeeg = Math.Abs(localScale.x) == Size.BEEG && Math.Abs(localScale.y) == Size.BEEG;
-
-            if( hkmpUsername != null && hkmpUsername.gameObject.activeSelf)
-            {
-                isHKMP = true;
-                var tmp = hkmpUsername.gameObject.GetComponent<TextMeshPro>();
-                if(!(tmp.text.Contains("SMOL") || tmp.text.Contains("BEEG")) && (playerIsSmol || playerIsBeeg))
-                {
-                    currentScale = Size.NORMAL;
-                    Normal(playerTransform);
-                    Instance.scalePrefabs();
-                } 
-                else if((tmp.text.Contains("SMOL")) && !playerIsSmol)
-                {
-                    currentScale = Size.SMOL;
-                    Smol(playerTransform);
-                    Instance.scalePrefabs();
-
-                } 
-                else if((tmp.text.Contains("BEEG") && !playerIsBeeg))
-                {
-                    currentScale = Size.BEEG;
-                    Beeg(playerTransform);
-                    Instance.scalePrefabs();
-                }    
-                fixPlayerName(playerTransform,hkmpUsername,currentScale);
-                SFX.ChangePitch();
-            }
-            else 
-            {
-                isHKMP = false;
-                InteractiveScale(playerTransform);
-                SFX.ChangePitch();
-            }
-        }
+        
         public void applyTransformation(){
             if(HeroController.instance == null) { return; } 
-            UpdatePlayer();
-            PlayTransformEffects();
-            SFX.ChangePitch();
+            Knight.UpdateLocalPlayer();
+            Knight.PlayTransformEffects();
             setSaveSettings();
             lastCheckTime = DateTime.Now;
         }
@@ -310,21 +159,16 @@ namespace SmolKnight
                 startUpScreen();
             }
 
-            var currentTime = DateTime.Now;
             if (settings.keybinds.Transform.WasPressed || settings.buttonbinds.Transform.WasPressed)
             {
                 nextScale();
                 ModMenu.RefreshOptions();
                 applyTransformation();
             }
-            
-            if (isHKMP == true && (currentTime - lastHKMPCheckTime).TotalMilliseconds > 1000) {
-                UpdateHKMPPlayers();
-                lastHKMPCheckTime = currentTime;
-            }
-
+            Knight.CheckRemotePlayers(false);
+            var currentTime = DateTime.Now;
             if ((currentTime - lastCheckTime).TotalMilliseconds > 5000) {
-                UpdatePlayer();
+                Knight.UpdateLocalPlayer();
                 lastCheckTime = currentTime;
             }
         }
