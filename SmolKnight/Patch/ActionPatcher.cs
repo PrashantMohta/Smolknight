@@ -84,8 +84,10 @@ namespace SmolKnight
             if (go.name.StartsWith("Knight Spike Death")) // fix for spike squish
             {
                 go.scaleGO(SmolKnight.currentScale); 
-            }
-            if (go.name.StartsWith("SD Crystal")) // fix for Cdash?
+            } else if (go.name.StartsWith("SD Crystal")) // fix for Cdash?
+            {
+                go.scaleGO(SmolKnight.currentScale); 
+            } else if (go.name.StartsWith("Knight Dream Arrival")) // fix for Entering dreams
             {
                 go.scaleGO(SmolKnight.currentScale); 
             }
