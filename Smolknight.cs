@@ -23,7 +23,6 @@ namespace SmolKnight
     public class SmolKnight:Mod,ICustomMenuMod,IGlobalSettings<GlobalModSettings>, ILocalSettings<SaveModSettings>
     {
         internal static SmolKnight Instance;
-
         public static GameObject KnightControllerGo;
         public static KnightController knightController;
         public static float currentScale = Size.SMOL;
@@ -73,7 +72,6 @@ namespace SmolKnight
             ModMenu.RefreshOptions();
         }
         
-
         public bool ToggleButtonInsideMenu => false;
 
         public static void startUpScreen(){            
@@ -134,15 +132,13 @@ namespace SmolKnight
 
         //warpToDreamGate
         //GameManager.BeginScene
-        //PositionHeroAtSceneEntrance
-        
+        //PositionHeroAtSceneEntrance        
         private void HeroUpdate()
         {
             if(KnightControllerGo == null){
                 KnightControllerGo = new GameObject();
                 knightController = KnightControllerGo.AddComponent<KnightController>();
             }
-           
         }
         
     }

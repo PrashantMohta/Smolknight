@@ -10,7 +10,7 @@ namespace SmolKnight
    static class Utils{
 
         public static void DebugLog(string s){
-            if(true){ //make it false when not debugging
+            if(false){ //make it false when not debugging
                 SmolKnight.Instance.Log(s);
             }
         }

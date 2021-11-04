@@ -70,14 +70,24 @@ namespace SmolKnight
         public static void DoSetScale(On.HutongGames.PlayMaker.Actions.SetScale.orig_DoSetScale orig, HutongGames.PlayMaker.Actions.SetScale self)
         {
             DebugLog("DoSetScale");
-            orig(self);
 
-            if(self.gameObject == null || self.gameObject.GameObject == null || self.gameObject.GameObject.Value == null){
+            orig(self);
+            var go = self.Fsm.GetOwnerDefaultTarget(self.gameObject);
+            if(go == null){
                 return;
             }
-            if (self.gameObject.GameObject.Value == HeroController.instance.gameObject)
+            DebugLog(go.name);
+            if (go == HeroController.instance.gameObject)
             {
                 Knight.UpdateLocalPlayer();
+            }
+            if (go.name.StartsWith("Knight Spike Death")) // fix for spike squish
+            {
+                go.scaleGO(SmolKnight.currentScale); 
+            }
+            if (go.name.StartsWith("SD Crystal")) // fix for Cdash?
+            {
+                go.scaleGO(SmolKnight.currentScale); 
             }
         }
 
