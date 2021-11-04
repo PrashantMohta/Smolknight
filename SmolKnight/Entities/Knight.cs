@@ -19,6 +19,7 @@ namespace SmolKnight
             var isTimeToUpdate = (currentTime - lastRemotePlayerCheck).TotalMilliseconds > 1000;
             lastRemotePlayerCheck = currentTime;
             if (( isTimeToUpdate || forceUpdate) && HKMP.isEnabledWithUserName()) {           
+               DebugLog("GetRemotePlayerObjects");
                GetRemotePlayerObjects().ForEach((remotePlayer) => {
                   var playerTransform = remotePlayer.getPlayerTransform();
                   var nameTransform = remotePlayer.getNameTransform();
@@ -46,6 +47,7 @@ namespace SmolKnight
       {
          if(HeroController.instance == null) { return; }
          if (GameManager.instance.isPaused) { return; } 
+         DebugLog("UpdateLocalPlayer");
          var localPlayer = HKMP.GetLocalPlayer();
          if(localPlayer == null) { return; }
          var playerTransform = localPlayer.getPlayerTransform();

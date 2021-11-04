@@ -5,12 +5,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using GlobalEnums;
 using static Satchel.GameObjectUtils;
+using static SmolKnight.Utils;
 
 namespace SmolKnight
 {
    static class ActionPatcher{
 
        public static void OnRayCast2d(On.HutongGames.PlayMaker.Actions.RayCast2d.orig_OnEnter orig, HutongGames.PlayMaker.Actions.RayCast2d self){
+            DebugLog("OnRayCast2d");
             GameObject fromObj = self.Fsm.GetOwnerDefaultTarget(self.fromGameObject);
             if(fromObj.name == "Knight"){
                 self.distance.Value = 2f * SmolKnight.currentScale;
@@ -19,6 +21,7 @@ namespace SmolKnight
         }
 
         private static IEnumerator scaleFireballCoro(GameObject go){
+            DebugLog("scaleFireballCoro");
             yield return null;
             go.scaleGO(SmolKnight.currentScale);
             var blast = go.FindGameObjectInChildren("Fireball Blast");
@@ -34,6 +37,7 @@ namespace SmolKnight
 
         }
         public static void OnSpellSpawn(On.HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool.orig_OnEnter orig, HutongGames.PlayMaker.Actions.SpawnObjectFromGlobalPool self){
+            DebugLog("OnSpellSpawn");
             if(self.gameObject.Value){
                 var g = self.gameObject.Value;
                 if(g.name.StartsWith("Fireball")) {
@@ -65,6 +69,7 @@ namespace SmolKnight
 
         public static void DoSetScale(On.HutongGames.PlayMaker.Actions.SetScale.orig_DoSetScale orig, HutongGames.PlayMaker.Actions.SetScale self)
         {
+            DebugLog("DoSetScale");
             orig(self);
 
             if(self.gameObject == null || self.gameObject.GameObject == null || self.gameObject.GameObject.Value == null){
@@ -77,6 +82,7 @@ namespace SmolKnight
         }
 
         public static void CreateObject(On.HutongGames.PlayMaker.Actions.CreateObject.orig_OnEnter orig,HutongGames.PlayMaker.Actions.CreateObject self){
+            DebugLog("CreateObject");
             orig(self);
             if(self.storeObject.Value.name.StartsWith("Shadow Ball")){ //shade fireball
                 self.storeObject.Value.scaleGO(SmolKnight.saveSettings.shadeScale);

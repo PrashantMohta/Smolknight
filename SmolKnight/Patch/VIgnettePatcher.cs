@@ -7,6 +7,8 @@ using GlobalEnums;
 using HutongGames.PlayMaker.Actions;
 using static Satchel.FsmUtil;
 using static Modding.Logger;
+using static SmolKnight.Utils;
+
 namespace SmolKnight
 {
    static class VignettePatcher{
@@ -36,6 +38,7 @@ namespace SmolKnight
         };
         public static void Patch(float factor)
         {
+            DebugLog("Vignette Patch");
             var fsm = HeroController.instance.transform.Find("Vignette").gameObject.LocateMyFSM("Darkness Control");
             
             if(fsm == null) Log("no fsm");

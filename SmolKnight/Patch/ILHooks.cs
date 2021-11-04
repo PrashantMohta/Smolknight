@@ -9,6 +9,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using static SmolKnight.Utils;
 
 namespace SmolKnight
 {
@@ -24,7 +25,9 @@ namespace SmolKnight
             
             while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdcR4(-1f) || instr.MatchLdcR4(1f) ))  
             {
-                cursor.EmitDelegate<Func<float>>(() => SmolKnight.GetCurrentScale());
+                cursor.EmitDelegate<Func<float>>(() => {
+                    return SmolKnight.GetCurrentScale();
+                    });
                 cursor.Emit(OpCodes.Mul);
             }
         }

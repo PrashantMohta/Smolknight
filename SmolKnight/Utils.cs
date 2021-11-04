@@ -9,7 +9,13 @@ namespace SmolKnight
 {
    static class Utils{
 
+        public static void DebugLog(string s){
+            if(true){ //make it false when not debugging
+                SmolKnight.Instance.Log(s);
+            }
+        }
        public static void SetScale(this Transform transform,float scale){
+            DebugLog("SetScale");
             var localScale = transform.localScale;
             var x = scale;
             var y = scale;
@@ -67,6 +73,7 @@ namespace SmolKnight
             }
         }
        public static void scaleGO(this GameObject go,float scale){
+            DebugLog("scaleGO");
             var localScale = go.transform.localScale;
             localScale.x = localScale.x > 0 ? scale : -scale;
             localScale.y = scale;
@@ -74,7 +81,7 @@ namespace SmolKnight
         }
        
        public static void AdjustPlayerName(Transform Player , Transform Username,float currentPlayerScale){
-
+            DebugLog("AdjustPlayerName");
             if(currentPlayerScale == Size.NORMAL){
                 Username.position = Player.position + new Vector3(0, 1.25f, 0);
             } else if(currentPlayerScale == Size.SMOL){

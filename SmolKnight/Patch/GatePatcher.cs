@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using GlobalEnums;
+using static SmolKnight.Utils;
 
 namespace SmolKnight
 {
@@ -12,7 +13,7 @@ namespace SmolKnight
         private static TransitionPoint originalGate;
         private static Vector3 originalGatePosition;
         public static IEnumerator EnterScene(On.HeroController.orig_EnterScene orig,HeroController self, TransitionPoint enterGate, float delayBeforeEnter){
-
+            DebugLog("EnterScene");
             float AdditionalMovex = 0, AdditionalMovey = 0;
             var gateposition = enterGate.GetGatePosition();
             originalGate = enterGate;
@@ -40,6 +41,7 @@ namespace SmolKnight
         }
 
         public static void FinishedEnteringScene(On.HeroController.orig_FinishedEnteringScene orig,HeroController self,bool setHazardMarker, bool preventRunBool){
+            DebugLog("FinishedEnteringScene");
             if(originalGate != null){
                 originalGate.transform.position = originalGatePosition;
             }

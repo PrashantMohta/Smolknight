@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using Modding;
-
+using static SmolKnight.Utils;
 
 namespace SmolKnight
 {
@@ -9,6 +9,7 @@ namespace SmolKnight
     {
         
         public static float SetPlayerFloat(string name,float orig){
+            DebugLog("SetPlayerFloat");
             //sets dreamGate as if normal knight set it
             float res = orig;
             if(name == "dreamGateY"){
@@ -23,6 +24,7 @@ namespace SmolKnight
         }
 
         public static float GetPlayerFloat(string name, float orig){
+            DebugLog("GetPlayerFloat");
             //gets dreamGate location based on current knight size
             if( name == "dreamGateY") { 
                 if(SmolKnight.GetCurrentScale() == Size.SMOL){

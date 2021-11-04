@@ -16,6 +16,7 @@ using Satchel;
 using static Satchel.FsmUtil;
 using static Satchel.GameObjectUtils;
 using static Satchel.WavUtils;
+using static SmolKnight.Utils;
 
 namespace SmolKnight
 {
@@ -24,7 +25,9 @@ namespace SmolKnight
         internal static SmolKnight Instance;
 
         public static float currentScale = Size.SMOL;
-        public static float GetCurrentScale() => currentScale;
+        public static float GetCurrentScale(){
+            return currentScale;
+        }
         public DateTime lastCheckTime = DateTime.Now;    
 
         private string getVersionSafely(){
@@ -78,7 +81,8 @@ namespace SmolKnight
         }
 
         public static IEnumerator HideCurrentMenu(On.UIManager.orig_HideCurrentMenu orig,UIManager self){
-            Modding.Logger.Log(self.menuState);
+            DebugLog("HideCurrentMenu");
+            DebugLog(self.menuState.ToString());
             if(self.menuState == MainMenuState.DYNAMIC_MENU &&
              self.currentDynamicMenu == ModMenu.Screen && 
              !SmolKnight.saveSettings.startupSelection && ModMenu.skipPauseMenu){

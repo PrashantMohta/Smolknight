@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Modding.Logger;
+using static SmolKnight.Utils;
 
 namespace SmolKnight{
     public static class ShinyItemStandPatcher{
@@ -33,6 +34,7 @@ namespace SmolKnight{
         
         private static IEnumerator Patch(Scene scene)
         {
+            DebugLog("Patch");
             yield return null;
             if (ShineyItemStandList.TryGetValue(scene.name, out float ShineyPos))
             {
