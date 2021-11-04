@@ -14,6 +14,7 @@ namespace SmolKnight
          gameObject = playerGo;
        }
        public Transform getPlayerTransform(){
+         if(gameObject == null) { return null; }
          return gameObject.transform;
        }
        private Transform nameTransform;
@@ -41,16 +42,19 @@ namespace SmolKnight
        
        private static HKMPPlayer localPlayer;
        public static HKMPPlayer GetLocalPlayer(){
-         if(localPlayer == null){
+         if(localPlayer == null || localPlayer.gameObject == null || localPlayer.gameObject.transform == null){
             localPlayer = new HKMPPlayer(HeroController.instance.gameObject);
          }
          return localPlayer;
        }
        public static bool isEnabledWithUserName(){
-         if(HeroController.instance == null) { return false;} 
-         var nameTransform = GetLocalPlayer().getNameTransform();
-         hasUsernames = (nameTransform != null && nameTransform.gameObject.activeSelf);
-         return hasUsernames;
+         try{
+            var nameTransform = GetLocalPlayer().getNameTransform();
+            hasUsernames = (nameTransform != null && nameTransform.gameObject.activeSelf);
+            return hasUsernames;
+         } catch(Exception e){
+            return false;
+         }
        }
 
        public static List<HKMPPlayer> GetRemotePlayerObjects(){

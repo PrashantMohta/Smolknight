@@ -54,7 +54,6 @@ namespace SmolKnight{
         public static void StartPatchCoro(Scene scene,LoadSceneMode mode)
         {
             GameManager.instance.StartCoroutine(Patch(scene));
-
         }
 
     }
