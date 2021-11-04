@@ -24,11 +24,12 @@ namespace SmolKnight
     {
         internal static SmolKnight Instance;
 
+        public static GameObject KnightControllerGo;
+        public static KnightController knightController;
         public static float currentScale = Size.SMOL;
         public static float GetCurrentScale(){
             return currentScale;
         }
-        public DateTime lastCheckTime = DateTime.Now;    
 
         private string getVersionSafely(){
             return Satchel.AssemblyUtils.GetAssemblyVersionHash();
@@ -52,7 +53,7 @@ namespace SmolKnight
         public void OnLoadLocal(SaveModSettings s) => saveSettings = s;
         public SaveModSettings OnSaveLocal() => saveSettings;
 
-        public void setSaveSettings(){
+        public static void setSaveSettings(){
             if(currentScale == Size.SMOL){
                 saveSettings.currentScale = "SMOL";
             } else if(currentScale == Size.BEEG){
@@ -76,8 +77,8 @@ namespace SmolKnight
         public bool ToggleButtonInsideMenu => false;
 
         public static void startUpScreen(){            
-                ModMenu.skipPauseMenu = true;
-                GameManager.instance.StartCoroutine(GameManager.instance.PauseToggleDynamicMenu(ModMenu.Screen));
+            ModMenu.skipPauseMenu = true;
+            GameManager.instance.StartCoroutine(GameManager.instance.PauseToggleDynamicMenu(ModMenu.Screen));
         }
 
         public static IEnumerator HideCurrentMenu(On.UIManager.orig_HideCurrentMenu orig,UIManager self){
@@ -135,46 +136,13 @@ namespace SmolKnight
         //GameManager.BeginScene
         //PositionHeroAtSceneEntrance
         
-
-        private static void nextScale(){
-            if(!saveSettings.enableSwitching || HKMP.isEnabledWithUserName()) { 
-                return;
-            }
-
-            if(currentScale == Size.SMOL){
-                currentScale = Size.NORMAL;
-            } else if(currentScale == Size.NORMAL){
-                currentScale = Size.BEEG;
-            } else if(currentScale == Size.BEEG){
-                currentScale = Size.SMOL;
-            }
-        }
-        
-        public void applyTransformation(){
-            if(HeroController.instance == null) { return; } 
-            Knight.UpdateLocalPlayer();
-            Knight.PlayTransformEffects();
-            setSaveSettings();
-            lastCheckTime = DateTime.Now;
-        }
         private void HeroUpdate()
         {
-            if(!saveSettings.startupSelection && GameManager.instance.IsGameplayScene() && HeroController.instance.cState.onGround && Input.anyKey){
-                startUpScreen();
+            if(KnightControllerGo == null){
+                KnightControllerGo = new GameObject();
+                knightController = KnightControllerGo.AddComponent<KnightController>();
             }
-
-            if (settings.keybinds.Transform.WasPressed || settings.buttonbinds.Transform.WasPressed)
-            {
-                nextScale();
-                ModMenu.RefreshOptions();
-                applyTransformation();
-            }
-            Knight.CheckRemotePlayers(false);
-            var currentTime = DateTime.Now;
-            if ((currentTime - lastCheckTime).TotalMilliseconds > 5000) {
-                Knight.UpdateLocalPlayer();
-                lastCheckTime = currentTime;
-            }
+           
         }
         
     }

@@ -76,7 +76,7 @@ namespace SmolKnight
             }
             SmolKnight.currentScale = currentScale;
             SmolKnight.saveSettings.enableSwitching = adhocSwitching;
-            SmolKnight.Instance.applyTransformation();
+            SmolKnight.knightController?.applyTransformation();
         }
 
         public static void BackSetting(){

@@ -99,6 +99,7 @@
       <Compile Include="Properties\AssemblyInfo.cs" />
       <Compile Include="SmolKnight\Menu\ModMenu.cs" />
 
+      <Compile Include="SmolKnight\Entities\KnightController.cs" />  
       <Compile Include="SmolKnight\Entities\Knight.cs" />  
       <Compile Include="SmolKnight\Entities\Shade.cs" />  
 
