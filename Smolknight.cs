@@ -22,7 +22,7 @@ namespace SmolKnight
 {
     public class SmolKnight:Mod,ICustomMenuMod,IGlobalSettings<GlobalModSettings>, ILocalSettings<SaveModSettings>
     {
-        internal static SmolKnight Instance;
+        public static SmolKnight Instance;
         public static GameObject KnightControllerGo;
         public static KnightController knightController;
         public static float currentScale = Size.SMOL;
@@ -124,7 +124,6 @@ namespace SmolKnight
             On.HutongGames.PlayMaker.Actions.SetScale.DoSetScale += ActionPatcher.DoSetScale;
             On.HutongGames.PlayMaker.Actions.RayCast2d.OnEnter += ActionPatcher.OnRayCast2d;
             On.HutongGames.PlayMaker.Actions.CreateObject.OnEnter += ActionPatcher.CreateObject;
-
 
             On.UIManager.HideCurrentMenu += HideCurrentMenu;
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += ShinyItemStandPatcher.StartPatchCoro;
