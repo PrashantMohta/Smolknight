@@ -76,6 +76,12 @@
         <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>$(VanillaFiles)\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule">
+          <HintPath>$(VanillaFiles)\UnityEngine.AssetBundleModule.dll</HintPath>
+        </Reference> 
+        <Reference Include="UnityEngine.AnimationModule">
+          <HintPath>$(VanillaFiles)\UnityEngine.AnimationModule.dll</HintPath>
+        </Reference> 
         <Reference Include="UnityEngine.ParticleSystemModule">
           <HintPath>$(VanillaFiles)\UnityEngine.ParticleSystemModule.dll</HintPath>
         </Reference>
@@ -104,6 +110,8 @@
       <Compile Include="Entities\KnightController.cs" />  
       <Compile Include="Entities\Knight.cs" />  
       <Compile Include="Entities\Shade.cs" />  
+      <Compile Include="Entities\Shaman.cs" />  
+
 
       <Compile Include="Patch\ActionPatcher.cs" />        
       <Compile Include="Patch\GatePatcher.cs" />        
@@ -117,6 +125,11 @@
       <Compile Include="Helpers\Utils.cs" />
       <Compile Include="Helpers\SFX.cs" />
       <Compile Include="Helpers\Size.cs" />
+
+      <Compile Include="Scenes\*.cs" />
+
+      <EmbeddedResource Include="Resources\Scenes\*" />
+      <EmbeddedResource Include="Resources\Characters\*" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     
