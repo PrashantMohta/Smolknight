@@ -50,7 +50,7 @@ namespace SmolKnight
             }
             orig(self);
             var go = self.storeObject.Value;
-            if(go.name.StartsWith("+dream_gate_object")){
+            if(go.name.StartsWith("dream_gate_object")){
                 //visually move the dreamgate when spawned 
                 var pos = go.transform.position;
                 if(SmolKnight.currentScale == Size.SMOL){

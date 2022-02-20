@@ -12,9 +12,9 @@ using UnityEngine;
 namespace SmolKnight{
     public class KnightController : MonoBehaviour{
 
-        public DateTime lastCheckTime = DateTime.Now;    
+        public DateTime lastCheckTime = DateTime.Now.AddMilliseconds(-5000);    
 
-        private static void nextScale(){
+        private static void nextScale() {
             if(!SmolKnight.saveSettings.enableSwitching || HKMP.isEnabledWithUserName()) { 
                 return;
             }
