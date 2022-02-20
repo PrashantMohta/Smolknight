@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using GlobalEnums;
+using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using Modding;
 using UnityEngine;
@@ -11,9 +12,11 @@ using UnityEngine.SceneManagement;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using TMPro;
+using InControl;
 using MonoMod.RuntimeDetour;
 using Satchel;
 using static Satchel.FsmUtil;
+using static Satchel.Futils.FsmVariables;
 using static Satchel.GameObjectUtils;
 using static Satchel.WavUtils;
 using static SmolKnight.Utils;
@@ -26,6 +29,7 @@ namespace SmolKnight
         public static GameObject KnightControllerGo;
         public static KnightController knightController;
         public static float currentScale = Size.SMOL;
+        public Dictionary<string, Dictionary<string, GameObject>> preloaded;
         public static float GetCurrentScale(){
             return currentScale;
         }
@@ -69,39 +73,73 @@ namespace SmolKnight
             } else {
                 currentScale = Size.NORMAL;
             }
-            ModMenu.RefreshOptions();
+            BetterMenu.MenuRef.Update();
         }
         
         public bool ToggleButtonInsideMenu => false;
-
-        public static void startUpScreen(){            
-            ModMenu.skipPauseMenu = true;
-            GameManager.instance.StartCoroutine(GameManager.instance.PauseToggleDynamicMenu(ModMenu.Screen));
+        public static void prepareItemDialog(){
+           var item = Instance.preloaded["Fungus2_14"]["Shiny Item Stand"];
+           CustomBigItemGet.Prepare(Instance.preloaded["Fungus2_14"]["Shiny Item Stand"]);
         }
-
-        public static IEnumerator HideCurrentMenu(On.UIManager.orig_HideCurrentMenu orig,UIManager self){
-            DebugLog("HideCurrentMenu");
-            DebugLog(self.menuState.ToString());
-            if(self.menuState == MainMenuState.DYNAMIC_MENU &&
-             self.currentDynamicMenu == ModMenu.Screen && 
-             !SmolKnight.saveSettings.startupSelection && ModMenu.skipPauseMenu){
-                ModMenu.startPlaying();
-                yield return self.HideMenu(ModMenu.Screen);
-                yield return null;
+        public static bool isSmol = false;
+        public static void startUpScreen(){  
+            if(isSmol){
+            CustomBigItemGet.ShowDialog(
+                "Smol power",
+                "Acquired",
+                "Press",
+                "To change size and become Smol",
+                "smoller things can enter smoller pathways",
+                AssemblyUtils.GetSpriteFromResources("smol_get.png"),
+                () => {
+                    if(GameManager.instance.inputHandler.lastActiveController == BindingSourceType.DeviceBindingSource){
+                        return SmolKnight.settings.buttonbinds.Transform;
+                    }
+                    return SmolKnight.settings.keybinds.Transform;
+                },                ()=>{
+                    Instance.Log("Got Smol Power dialog down");
+                });
             } else {
-                yield return orig(self);
+            CustomBigItemGet.ShowDialog(
+                "Beeg power",
+                "Acquired",
+                "Press",
+                "To change size and become Beeg",
+                "Beeger things hit harder",
+                AssemblyUtils.GetSpriteFromResources("beeg_get.png"),
+                () => {
+                    if(GameManager.instance.inputHandler.lastActiveController == BindingSourceType.DeviceBindingSource){
+                        return SmolKnight.settings.buttonbinds.Transform;
+                    }
+                    return SmolKnight.settings.keybinds.Transform;
+                },
+                ()=>{
+                    Instance.Log("Got Beeg Power dialog down");
+                });
             }
+            isSmol = !isSmol;
+            //show startup screen
+            // on accept 
+            // SmolKnight.saveSettings.startupSelection = true
         }
+
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
-            ModMenu.saveModsMenuScreen(modListMenu);
-            return ModMenu.CreatemenuScreen();
+            return BetterMenu.GetMenu(modListMenu);
         }
-
-        public override void Initialize()
+        
+        public override List<(string, string)> GetPreloadNames()
+        {
+            return new List<(string, string)>
+            {
+                ("Fungus2_14", "Shiny Item Stand"),
+            };   
+        }
+        public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
         {
             Instance = this;
-
+            preloaded = preloadedObjects;
+            prepareItemDialog();//
             IL.HeroController.Update10 += ILHooks.BypassCheckForKnightScaleRange;
             ILHooks.InitCustomHooks();
 
@@ -125,18 +163,17 @@ namespace SmolKnight
             On.HutongGames.PlayMaker.Actions.RayCast2d.OnEnter += ActionPatcher.OnRayCast2d;
             On.HutongGames.PlayMaker.Actions.CreateObject.OnEnter += ActionPatcher.CreateObject;
 
-            On.UIManager.HideCurrentMenu += HideCurrentMenu;
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += ShinyItemStandPatcher.StartPatchCoro;
         }        
 
-        //warpToDreamGate
-        //GameManager.BeginScene
-        //PositionHeroAtSceneEntrance        
         private void HeroUpdate()
         {
             if(KnightControllerGo == null){
                 KnightControllerGo = new GameObject();
                 knightController = KnightControllerGo.AddComponent<KnightController>();
+            }
+            if(Input.GetKeyDown(KeyCode.P)){
+               startUpScreen();
             }
         }
         

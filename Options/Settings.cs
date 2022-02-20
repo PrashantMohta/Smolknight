@@ -37,7 +37,7 @@ namespace SmolKnight
 
         private void DefaultBinds()
         {
-                Transform.AddDefaultBinding(Key.Backspace);
+            Transform.AddDefaultBinding(Key.Backspace);
         }
     }
 

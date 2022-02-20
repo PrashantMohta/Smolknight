@@ -29,7 +29,10 @@ namespace SmolKnight{
         }
         
         public void applyTransformation(){
-            if(HeroController.instance == null) { return; } 
+            if(HeroController.instance == null || GameManager.instance.isPaused) { 
+                lastCheckTime = DateTime.Now.AddMilliseconds(-5000);
+                return; 
+            } 
             Knight.UpdateLocalPlayer();
             Knight.PlayTransformEffects();
             SmolKnight.setSaveSettings();
@@ -40,11 +43,11 @@ namespace SmolKnight{
                 SmolKnight.startUpScreen();
             }
 
-            if (SmolKnight.settings.keybinds.Transform.WasPressed || SmolKnight.settings.buttonbinds.Transform.WasPressed)
+            if (!GameManager.instance.isPaused && (SmolKnight.settings.keybinds.Transform.WasPressed || SmolKnight.settings.buttonbinds.Transform.WasPressed))
             {
                 nextScale();
-                ModMenu.RefreshOptions();
                 applyTransformation();
+                BetterMenu.MenuRef.Update();
             }
             Knight.CheckRemotePlayers(false);
             var currentTime = DateTime.Now;
