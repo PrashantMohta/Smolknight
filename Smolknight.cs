@@ -106,6 +106,9 @@ namespace SmolKnight
         {
             return new List<(string, string)>
             {
+                ("Fungus1_03", "_SceneManager"),
+                ("Fungus1_03","TileMap"),
+                ("White_Palace_03_hub", "WhiteBench"),
                 ("Cliffs_01","Cornifer Card")
             };
         }
@@ -123,6 +126,9 @@ namespace SmolKnight
                 preloads = preloadedObjects;
                 Instance = this;
 
+                //ideally we should do have some strategy to this
+                Scenes.ComingSoon.getAssetBundle();
+                Scenes.ComingSoon.CreateScene();
 
 
                 IL.HeroController.Update10 += ILHooks.BypassCheckForKnightScaleRange;
