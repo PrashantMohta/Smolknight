@@ -7,5 +7,7 @@ namespace SmolKnight
         public static readonly float NORMAL_OFFSET = 0f;
         public static readonly float BEEG = 2.5f;
         public static readonly float BEEG_OFFSET = 2f;
+        public static List<float> scales = new() {SMOL,NORMAL,BEEG};
+
     }
 }

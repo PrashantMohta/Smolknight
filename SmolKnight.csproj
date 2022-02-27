@@ -106,7 +106,10 @@
 
       <Compile Include="Entities\KnightController.cs" />  
       <Compile Include="Entities\Knight.cs" />  
-      <Compile Include="Entities\Shade.cs" />  
+      <Compile Include="Entities\Shade.cs" />
+
+        
+      <Compile Include="Items\*.cs" />  
 
       <Compile Include="Patch\ActionPatcher.cs" />        
       <Compile Include="Patch\GatePatcher.cs" />        

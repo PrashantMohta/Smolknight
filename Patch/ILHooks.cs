@@ -29,10 +29,10 @@ namespace SmolKnight
         private static void ChangeDreamGateYPositionName(ILContext il)
         {
             ILCursor cursor = new ILCursor(il).Goto(0);;
-            while (cursor.TryGotoNext(instr => instr.MatchLdstr("dreamGateY")))  
+            while (cursor.TryGotoNext(instr => instr.MatchLdstr(PlayerDataPatcher.DREAMGATE_Y)))  
             {
                 cursor.Remove();
-                cursor.Emit(OpCodes.Ldstr, "SmolKnight.dreamGateY");
+                cursor.Emit(OpCodes.Ldstr, PlayerDataPatcher.SMOLKNIGHT_DREAMGATE_Y);
             }
         }
 

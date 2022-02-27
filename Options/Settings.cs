@@ -9,6 +9,9 @@ namespace SmolKnight
         public float shadeScale {get; set;} = Size.SMOL;
         public bool enableSwitching {get; set;} = false;
         public bool startupSelection {get; set;} = false;
+        public bool hasSmol {get; set;} = false;
+        public bool hasNormal {get; set;} = true;
+        public bool hasBeeg {get; set;} = false;
 
     }
 

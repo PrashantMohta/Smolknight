@@ -11,7 +11,7 @@ namespace SmolKnight
                 new TextPanel("Experience hallownest through a new perspective"),
                 new HorizontalOption(
                     "Current size", "",
-                    new string[] { "Normal" , "Smoll", "Beeg" },
+                    getSizeOptionsArr(),
                     (setting) => { setSizeOption(setting); },
                     () => getSizeOption(),
                     Id:"SizeOptions"),

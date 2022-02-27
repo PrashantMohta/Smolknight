@@ -1,8 +1,8 @@
-
 namespace SmolKnight
 {
     public class SmolKnight:Mod,ICustomMenuMod,IGlobalSettings<GlobalModSettings>, ILocalSettings<SaveModSettings>
     {
+        public static Satchel.Core satchel = new Satchel.Core(); 
         public static SmolKnight Instance;
         public static GameObject KnightControllerGo;
         public static KnightController knightController;
@@ -51,50 +51,27 @@ namespace SmolKnight
             } else {
                 currentScale = Size.NORMAL;
             }
-            BetterMenu.MenuRef.Update();
+            BetterMenu.UpdateMenu();
         }
         
         public bool ToggleButtonInsideMenu => false;
-        public static void prepareItemDialog(){
-           var item = Instance.preloaded["Fungus2_14"]["Shiny Item Stand"];
-           CustomBigItemGet.Prepare(Instance.preloaded["Fungus2_14"]["Shiny Item Stand"]);
+        public static void prepareItems(){
+           var customShinyManager = satchel.GetCustomShinyManager();
+           customShinyManager.standPrefab = Instance.preloaded["Fungus2_14"]["Shiny Item Stand"];
+           customShinyManager.prefab = Instance.preloaded["Mines_29"]["Shiny Item"];           
+           CustomBigItemGet.Prepare(customShinyManager.prefab);
+           // create all items that need to be added
+           new Smol(customShinyManager);
+           new Beeg(customShinyManager);
         }
         public static bool isSmol = false;
         public static void startUpScreen(){  
             if(isSmol){
-            CustomBigItemGet.ShowDialog(
-                "Smol power",
-                "Acquired",
-                "Press",
-                "To change size and become Smol",
-                "smoller things can enter smoller pathways",
-                AssemblyUtils.GetSpriteFromResources("smol_get.png"),
-                () => {
-                    if(GameManager.instance.inputHandler.lastActiveController == BindingSourceType.DeviceBindingSource){
-                        return SmolKnight.settings.buttonbinds.Transform;
-                    }
-                    return SmolKnight.settings.keybinds.Transform;
-                },                ()=>{
-                    Instance.Log("Got Smol Power dialog down");
-                });
+            
             } else {
-            CustomBigItemGet.ShowDialog(
-                "Beeg power",
-                "Acquired",
-                "Press",
-                "To change size and become Beeg",
-                "Beeger things hit harder",
-                AssemblyUtils.GetSpriteFromResources("beeg_get.png"),
-                () => {
-                    if(GameManager.instance.inputHandler.lastActiveController == BindingSourceType.DeviceBindingSource){
-                        return SmolKnight.settings.buttonbinds.Transform;
-                    }
-                    return SmolKnight.settings.keybinds.Transform;
-                },
-                ()=>{
-                    Instance.Log("Got Beeg Power dialog down");
-                });
+
             }
+            
             isSmol = !isSmol;
             //show startup screen
             // on accept 
@@ -111,13 +88,14 @@ namespace SmolKnight
             return new List<(string, string)>
             {
                 ("Fungus2_14", "Shiny Item Stand"),
+                ("Mines_29", "Shiny Item"),
             };   
         }
         public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
         {
             Instance = this;
             preloaded = preloadedObjects;
-            prepareItemDialog();//
+            prepareItems();
             IL.HeroController.Update10 += ILHooks.BypassCheckForKnightScaleRange;
             ILHooks.InitCustomHooks();
 
@@ -127,6 +105,7 @@ namespace SmolKnight
 
             ModHooks.SetPlayerFloatHook += PlayerDataPatcher.SetPlayerFloat;
             ModHooks.GetPlayerFloatHook += PlayerDataPatcher.GetPlayerFloat;
+            ModHooks.GetPlayerBoolHook += PlayerDataPatcher.GetPlayerBool;
 
             On.HeroController.FaceLeft += HeroControllerPatcher.FaceLeft;
             On.HeroController.FaceRight += HeroControllerPatcher.FaceRight;
