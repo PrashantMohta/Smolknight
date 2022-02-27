@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using Modding;
-using static SmolKnight.Utils;
-
 namespace SmolKnight
 {
     public static class PlayerDataPatcher

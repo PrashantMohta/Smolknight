@@ -1,15 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using GlobalEnums;
-using HutongGames.PlayMaker.Actions;
-using Modding;
-using UnityEngine;
-
-
-namespace SmolKnight{
+namespace SmolKnight
+{
     public class KnightController : MonoBehaviour{
 
         public DateTime lastCheckTime = DateTime.Now.AddMilliseconds(-5000);    

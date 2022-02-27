@@ -1,13 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using static Modding.Logger;
-using static SmolKnight.Utils;
 
-namespace SmolKnight{
+namespace SmolKnight
+{
     public static class ShinyItemStandPatcher{
         private static readonly Dictionary<string, float> ShineyItemStandList = new Dictionary<string, float>()
         {

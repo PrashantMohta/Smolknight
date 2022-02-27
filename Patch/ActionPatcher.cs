@@ -1,15 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using GlobalEnums;
-using static Satchel.GameObjectUtils;
-using static SmolKnight.Utils;
-
 namespace SmolKnight
 {
-   static class ActionPatcher{
+    static class ActionPatcher{
 
        public static void OnRayCast2d(On.HutongGames.PlayMaker.Actions.RayCast2d.orig_OnEnter orig, HutongGames.PlayMaker.Actions.RayCast2d self){
             DebugLog("OnRayCast2d");

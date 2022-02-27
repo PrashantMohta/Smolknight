@@ -1,15 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-using Modding;
-using UnityEngine;
 
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
-using static SmolKnight.Utils;
 
 namespace SmolKnight
 {

@@ -1,14 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using GlobalEnums;
-using static SmolKnight.Utils;
-
 namespace SmolKnight
 {
-   static class HeroControllerPatcher{
+    static class HeroControllerPatcher{
         public static void FaceLeft(On.HeroController.orig_FaceLeft orig, HeroController self)
         {
             DebugLog("FaceLeft");

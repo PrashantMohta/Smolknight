@@ -1,14 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using GlobalEnums;
-using static SmolKnight.Utils;
-
 namespace SmolKnight
 {
-   static class GatePatcher{
+    static class GatePatcher{
        
         private static TransitionPoint originalGate;
         private static Vector3 originalGatePosition;

@@ -1,15 +1,4 @@
-using Modding;
-using Modding.Menu;
-using Modding.Menu.Config;
-
-using static Modding.Logger;
-
-using UnityEngine;
-using UnityEngine.UI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
+using Satchel.BetterMenus;
 namespace SmolKnight
 {
     public partial class BetterMenu

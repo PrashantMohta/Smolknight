@@ -1,6 +1,4 @@
-﻿using System;
-using InControl;
-using Modding.Converters;
+﻿using Modding.Converters;
 using Newtonsoft.Json;
 
 namespace SmolKnight

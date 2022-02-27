@@ -1,25 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using GlobalEnums;
-using HutongGames.PlayMaker;
-using HutongGames.PlayMaker.Actions;
-using Modding;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using TMPro;
-using InControl;
-using MonoMod.RuntimeDetour;
-using Satchel;
-using static Satchel.FsmUtil;
-using static Satchel.Futils.FsmVariables;
-using static Satchel.GameObjectUtils;
-using static Satchel.WavUtils;
-using static SmolKnight.Utils;
 
 namespace SmolKnight
 {

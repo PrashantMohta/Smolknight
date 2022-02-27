@@ -1,14 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using GlobalEnums;
 using TMPro;
 
 namespace SmolKnight
 {
-   class HKMPPlayer{
+    class HKMPPlayer{
       public GameObject gameObject;
       public HKMPPlayer(GameObject playerGo){
          gameObject = playerGo;

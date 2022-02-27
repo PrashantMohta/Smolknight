@@ -1,14 +1,5 @@
-using Modding;
-using Modding.Menu;
-using Modding.Menu.Config;
 
 using Satchel.BetterMenus;
-
-using UnityEngine;
-using UnityEngine.UI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace SmolKnight
 {

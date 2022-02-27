@@ -11,7 +11,7 @@
         <AssemblyName>SmolKnight</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>preview</LangVersion>
         <VanillaFiles>..\Vanilla</VanillaFiles>
         <ModdingAPi>..\HollowKnight.Modding\OutputFinal</ModdingAPi>
         <HollowKnightModsDirectory>..\linkedtoHKMods</HollowKnightModsDirectory>
@@ -96,6 +96,8 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+      <Compile Include="globalUsings.cs" />  
+
       <Compile Include="SmolKnight.cs" />
       <Compile Include="Properties\AssemblyInfo.cs" />
       <Compile Include="Options\BetterMenu.cs" />
