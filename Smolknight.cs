@@ -21,7 +21,7 @@ namespace SmolKnight
             try{
                 version = getVersionSafely();
             } catch(Exception e){
-
+                Modding.Logger.Log(e.ToString());
             }
             return version;
         }
@@ -57,12 +57,15 @@ namespace SmolKnight
         public bool ToggleButtonInsideMenu => false;
         public static void prepareItems(){
            var customShinyManager = satchel.GetCustomShinyManager();
+           var customBigItemGetManager = satchel.GetCustomBigItemGetManager();
+
            customShinyManager.standPrefab = Instance.preloaded["Fungus2_14"]["Shiny Item Stand"];
-           customShinyManager.prefab = Instance.preloaded["Mines_29"]["Shiny Item"];           
-           CustomBigItemGet.Prepare(customShinyManager.prefab);
+           customShinyManager.prefab = Instance.preloaded["Mines_29"]["Shiny Item"]; 
+           
+           customBigItemGetManager.Prepare(Instance.preloaded["Mines_29"]["Shiny Item"]);
            // create all items that need to be added
-           new Smol(customShinyManager);
-           new Beeg(customShinyManager);
+           new Smol(customShinyManager,customBigItemGetManager);
+           new Beeg(customShinyManager,customBigItemGetManager);
         }
         public static bool isSmol = false;
         public static void startUpScreen(){  

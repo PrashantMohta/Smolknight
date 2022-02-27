@@ -47,6 +47,7 @@ namespace SmolKnight
             hasUsernames = (nameTransform != null && nameTransform.gameObject.activeSelf);
             return hasUsernames;
          } catch(Exception e){
+            SmolKnight.Instance.Log(e.ToString());
             return false;
          }
        }

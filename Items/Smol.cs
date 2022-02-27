@@ -1,13 +1,14 @@
 namespace SmolKnight
 {
     public class Smol{
+        private CustomBigItemGetManager igm;
         public bool ShouldSpawn(){
             return !PlayerDataPatcher.GetBool(PlayerDataPatcher.SMOLKNIGHT_HAS_SMOL);
         }
 
         public void onPickUp(){
             SmolKnight.saveSettings.hasSmol = true;
-            CustomBigItemGet.ShowDialog(
+            igm.ShowDialog(
                 "Smol power",
                 "Acquired",
                 "Press",
@@ -21,7 +22,8 @@ namespace SmolKnight
                     return SmolKnight.settings.keybinds.Transform;
                 },()=>{});
         }
-        public Smol(CustomShinyManager csm){
+        public Smol(CustomShinyManager csm, CustomBigItemGetManager igm){
+            this.igm = igm;
             csm.AddShiny("Smol Power","Tutorial_01",new Vector3(38f,11f,0f),false,false, onPickUp , ShouldSpawn);
         }
     }
