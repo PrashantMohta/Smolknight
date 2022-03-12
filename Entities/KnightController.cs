@@ -2,9 +2,10 @@ namespace SmolKnight
 {
     public class KnightController : MonoBehaviour{
 
-        public DateTime lastCheckTime = DateTime.Now.AddMilliseconds(-5000);    
+        public DateTime lastCheckTime = DateTime.Now.AddMilliseconds(-5000); 
+ 
         private static void nextScale() {
-            if(!SmolKnight.saveSettings.enableSwitching || HKMP.isEnabledWithUserName()) { 
+            if(HKMP.isEnabledWithUserName()) { 
                 return;
             }
             var i = Size.scales.FindIndex((item) => item == SmolKnight.currentScale);
@@ -26,8 +27,10 @@ namespace SmolKnight
                 lastCheckTime = DateTime.Now.AddMilliseconds(-5000);
                 return; 
             } 
+            if(Knight.lastScale != SmolKnight.currentScale){
+                Knight.PlayTransformEffects();
+            }
             Knight.UpdateLocalPlayer();
-            Knight.PlayTransformEffects();
             SmolKnight.setSaveSettings();
             lastCheckTime = DateTime.Now;
         }

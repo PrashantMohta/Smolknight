@@ -115,7 +115,7 @@ namespace SmolKnight
 
         private void HeroUpdate()
         {
-            if(KnightControllerGo == null){
+            if(KnightControllerGo == null && GameManager.instance.IsGameplayScene() && HeroController.instance.cState.onGround){
                 KnightControllerGo = new GameObject();
                 knightController = KnightControllerGo.AddComponent<KnightController>();
             }

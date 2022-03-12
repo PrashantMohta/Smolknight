@@ -44,14 +44,5 @@ namespace SmolKnight
 
         }
 
-        private static void setAdhocSwitching(int i){
-            SmolKnight.saveSettings.enableSwitching = (i == 0);
-        }
-
-        private static int getAdhocSwitching(){
-            return SmolKnight.saveSettings.enableSwitching ? 0 : 1;
-        }
-
-
     }
 }

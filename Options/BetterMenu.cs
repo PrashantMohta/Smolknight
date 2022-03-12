@@ -15,12 +15,6 @@ namespace SmolKnight
                     (setting) => { setSizeOption(setting); },
                     () => getSizeOption(),
                     Id:"SizeOptions"),
-                new HorizontalOption(
-                    "Allow switching mid-game?", "Recommended for BEEG knight",
-                    new string[] { "Yes" , "No"},
-                    (setting) => { setAdhocSwitching(setting);},
-                    () => getAdhocSwitching(),
-                    Id:"AdhocSwitching"),
                 new TextPanel("Set your preferred key for transformation"),
                 Blueprints.KeyAndButtonBind("Transform",
                     SmolKnight.settings.keybinds.Transform,
