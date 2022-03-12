@@ -67,19 +67,6 @@ namespace SmolKnight
            new Smol(customShinyManager,customBigItemGetManager);
            new Beeg(customShinyManager,customBigItemGetManager);
         }
-        public static bool isSmol = false;
-        public static void startUpScreen(){  
-            if(isSmol){
-            
-            } else {
-
-            }
-            
-            isSmol = !isSmol;
-            //show startup screen
-            // on accept 
-            // SmolKnight.saveSettings.startupSelection = true
-        }
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
@@ -131,9 +118,6 @@ namespace SmolKnight
             if(KnightControllerGo == null){
                 KnightControllerGo = new GameObject();
                 knightController = KnightControllerGo.AddComponent<KnightController>();
-            }
-            if(Input.GetKeyDown(KeyCode.P)){
-               startUpScreen();
             }
         }
         

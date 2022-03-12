@@ -32,10 +32,6 @@ namespace SmolKnight
             lastCheckTime = DateTime.Now;
         }
         public void Update(){
-            if(!SmolKnight.saveSettings.startupSelection && GameManager.instance.IsGameplayScene() && HeroController.instance.cState.onGround && Input.anyKey){
-                SmolKnight.startUpScreen();
-            }
-
             if (!GameManager.instance.isPaused && (SmolKnight.settings.keybinds.Transform.WasPressed || SmolKnight.settings.buttonbinds.Transform.WasPressed))
             {
                 nextScale();
