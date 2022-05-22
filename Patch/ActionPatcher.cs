@@ -54,7 +54,7 @@ namespace SmolKnight
             }
             if(go.name.StartsWith("Fireball")) {
                 go.scaleGO(SmolKnight.currentScale);
-                GameManager.instance.StartCoroutine(scaleFireballCoro(go));
+                CoroutineHelper.GetRunner().StartCoroutine(scaleFireballCoro(go));
             }
         }
 
