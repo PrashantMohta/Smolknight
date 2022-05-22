@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 4243929023
+CRC: 2607389170
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -7,4 +7,7 @@ AssetBundleManifest:
       Dependencies: {}
     Info_1:
       Name: pathtosmol
+      Dependencies: {}
+    Info_2:
+      Name: boss1
       Dependencies: {}

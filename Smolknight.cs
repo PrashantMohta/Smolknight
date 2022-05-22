@@ -87,7 +87,9 @@ namespace SmolKnight
                 ("Cliffs_01","Cornifer Card"),
                 ("Fungus2_14", "Shiny Item Stand"),
                 ("Mines_29", "Shiny Item"),
-                ("Fungus1_37","RestBench")
+                ("Fungus1_37","RestBench"),
+                ("GG_Broken_Vessel","Infected Knight"),
+                ("GG_Hornet_2","Boss Holder/Hornet Boss 2")
             };
         }
 
@@ -99,6 +101,14 @@ namespace SmolKnight
             }
         }
         internal CustomSaveSlotsManager customSaveSlotsManager;
+
+        public SmolKnight()
+        {
+            CreateCustomSaveSlotManager();
+            Scenes.PathToSmol.registerSaveSlotArt(customSaveSlotsManager);
+
+        }
+
         private void CreateCustomSaveSlotManager()
         {
             if (customSaveSlotsManager == null)
@@ -112,12 +122,14 @@ namespace SmolKnight
 
                 preloads = preloadedObjects;
                 Instance = this;
-                CreateCustomSaveSlotManager();
-                Scenes.PathToSmol.registerSaveSlotArt();
-
+                
                 //ideally we should have some strategy to this
                 Scenes.PathToSmol.getAssetBundle();
                 Scenes.PathToSmol.CreateScene();
+                Scenes.Boss1.getAssetBundle();
+                Scenes.Boss1.CreateScene();
+                
+                Scenes.Boss1.EnemyManager();
 
                 CardPrefab = preloads["Cliffs_01"]["Cornifer Card"];
                 CreateCustomDialogueManager();

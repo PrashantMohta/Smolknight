@@ -15,10 +15,10 @@ public static class PathToSmol{
         return sceneBundle;
     }
 
-    public static void registerSaveSlotArt()
+    public static void registerSaveSlotArt(CustomSaveSlotsManager customSaveSlotsManager)
     {
 
-         SmolKnight.Instance.customSaveSlotsManager.Add(new CustomSaveSlotParams
+         customSaveSlotsManager.Add(new CustomSaveSlotParams
         {
             sceneName = "PathToSmol",
             sceneTitle = "Old Pathway",
@@ -102,9 +102,9 @@ public static class PathToSmol{
                 new GatewayParams
                 {
                     gateName = "Path_to_smol entry right",
-                    pos = new Vector2(12.5f, 12.5f),
-                    size = new Vector2(1, 4),
-                    fromScene = "Town",
+                    pos = new Vector2(31.5f, 4f),
+                    size = new Vector2(1, 8),
+                    fromScene = "Boss1",
                     toScene = sceneName,
                     entryGate = "Path_to_smol gate left",
                     respawnPoint = new Vector2(3, 0),
@@ -116,10 +116,10 @@ public static class PathToSmol{
                 new GatewayParams
                 {
                     gateName = "Path_to_smol gate left",
-                    pos = new Vector2(2f, 17f),
-                    size = new Vector2(1, 8),
+                    pos = new Vector2(1f, 16f),
+                    size = new Vector2(1, 6f),
                     fromScene = sceneName,
-                    toScene = "Town",
+                    toScene = "Boss1",
                     entryGate = "Path_to_smol entry right",
                     respawnPoint = new Vector2(3, 0),
                     onlyOut = false,

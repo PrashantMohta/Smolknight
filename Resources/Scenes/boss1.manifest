@@ -1,0 +1,59 @@
+ManifestFileVersion: 0
+CRC: 4181872795
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: a18d13a5f3691a6bde7be97e2cba4344
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: dcb9e5ed6684de7b18b1fa3404bd8a6a
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 20
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 50
+  Script: {instanceID: 0}
+- Class: 60
+  Script: {instanceID: 0}
+- Class: 61
+  Script: {instanceID: 0}
+- Class: 81
+  Script: {instanceID: 0}
+- Class: 104
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 826562635, guid: 7430b36f528eb5145b38481af68d2e91, type: 3}
+- Class: 114
+  Script: {fileID: 1551361732, guid: 7430b36f528eb5145b38481af68d2e91, type: 3}
+- Class: 114
+  Script: {fileID: -802674962, guid: 7430b36f528eb5145b38481af68d2e91, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 157
+  Script: {instanceID: 0}
+- Class: 196
+  Script: {instanceID: 0}
+- Class: 212
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/boss1/Boss1.unity
+Dependencies: []
