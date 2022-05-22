@@ -1,7 +1,5 @@
-using UnityEngine;
-using static Satchel.GameObjectUtils;
-
-namespace SmolKnight{
+namespace SmolKnight
+{
     public static class SFX{
         private static AudioSource transformSource;
         public static void PlayTransformSound(){
@@ -12,6 +10,7 @@ namespace SmolKnight{
             transformSource.Play();
         }
         public static void ChangePitch(){
+            DebugLog("ChangePitch");
             //pitches up or down the sounds of the hero based on size
             AudioSource[] audioSources = HeroController.instance.GetComponentsInChildren<AudioSource>();
             foreach(AudioSource source in audioSources){          

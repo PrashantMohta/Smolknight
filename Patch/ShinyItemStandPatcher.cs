@@ -1,12 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using static Modding.Logger;
 
-namespace SmolKnight{
+namespace SmolKnight
+{
     public static class ShinyItemStandPatcher{
         private static readonly Dictionary<string, float> ShineyItemStandList = new Dictionary<string, float>()
         {
@@ -33,6 +28,7 @@ namespace SmolKnight{
         
         private static IEnumerator Patch(Scene scene)
         {
+            DebugLog("Patch");
             yield return null;
             if (ShineyItemStandList.TryGetValue(scene.name, out float ShineyPos))
             {
@@ -54,7 +50,6 @@ namespace SmolKnight{
         public static void StartPatchCoro(Scene scene,LoadSceneMode mode)
         {
             GameManager.instance.StartCoroutine(Patch(scene));
-
         }
 
     }

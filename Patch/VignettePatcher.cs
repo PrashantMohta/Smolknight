@@ -1,15 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using GlobalEnums;
-using HutongGames.PlayMaker.Actions;
-using static Satchel.FsmUtil;
 using static Modding.Logger;
+
 namespace SmolKnight
 {
-   static class VignettePatcher{
+    static class VignettePatcher{
 
         private static List<(string,int,float)> LightAffectors = new List<(string, int,float)>()
         {
@@ -36,6 +29,7 @@ namespace SmolKnight
         };
         public static void Patch(float factor)
         {
+            DebugLog("Vignette Patch");
             var fsm = HeroController.instance.transform.Find("Vignette").gameObject.LocateMyFSM("Darkness Control");
             
             if(fsm == null) Log("no fsm");
