@@ -1,15 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using GlobalEnums;
-using static Satchel.GameObjectUtils;
-using static SmolKnight.Utils;
-
 namespace SmolKnight
 {
-   static class ActionPatcher{
+    static class ActionPatcher{
 
        public static void OnRayCast2d(On.HutongGames.PlayMaker.Actions.RayCast2d.orig_OnEnter orig, HutongGames.PlayMaker.Actions.RayCast2d self){
             DebugLog("OnRayCast2d");
@@ -50,7 +41,7 @@ namespace SmolKnight
             }
             orig(self);
             var go = self.storeObject.Value;
-            if(go.name.StartsWith("+dream_gate_object")){
+            if(go.name.StartsWith("dream_gate_object")){
                 //visually move the dreamgate when spawned 
                 var pos = go.transform.position;
                 if(SmolKnight.currentScale == Size.SMOL){
@@ -63,7 +54,7 @@ namespace SmolKnight
             }
             if(go.name.StartsWith("Fireball")) {
                 go.scaleGO(SmolKnight.currentScale);
-                GameManager.instance.StartCoroutine(scaleFireballCoro(go));
+                CoroutineHelper.GetRunner().StartCoroutine(scaleFireballCoro(go));
             }
         }
 

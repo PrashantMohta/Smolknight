@@ -1,18 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using GlobalEnums;
 
 using static SmolKnight.HKMP;
-using static SmolKnight.Utils;
 
 namespace SmolKnight
 {
-   static class Knight{
+    static class Knight{
        
       public static DateTime lastRemotePlayerCheck;
+      public static float lastScale = 1f;  
       public static void CheckRemotePlayers(bool forceUpdate = false)
         {   
             var currentTime = DateTime.Now;
@@ -82,6 +76,7 @@ namespace SmolKnight
          } else {
                InteractiveScale(playerTransform,SmolKnight.currentScale);
          }
+         lastScale = SmolKnight.currentScale;
       }
       
       public static void PlayTransformEffects(){

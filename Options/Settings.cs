@@ -1,16 +1,17 @@
-﻿using System;
-using InControl;
-using Modding.Converters;
+﻿using Modding.Converters;
 using Newtonsoft.Json;
 
 namespace SmolKnight
 {
 
     public class SaveModSettings  {
-        public string currentScale {get; set;} = "SMOL";
-        public float shadeScale {get; set;} = Size.SMOL;
-        public bool enableSwitching {get; set;} = false;
+        public string currentScale {get; set;} = "Normal";
+        public float shadeScale {get; set;} = Size.NORMAL;
+        public bool enableSwitching {get; set;} = true;
         public bool startupSelection {get; set;} = false;
+        public bool hasSmol {get; set;} = false;
+        public bool hasNormal {get; set;} = true;
+        public bool hasBeeg {get; set;} = false;
 
     }
 
@@ -37,7 +38,7 @@ namespace SmolKnight
 
         private void DefaultBinds()
         {
-                Transform.AddDefaultBinding(Key.Backspace);
+            Transform.AddDefaultBinding(Key.Backspace);
         }
     }
 

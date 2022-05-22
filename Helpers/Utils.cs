@@ -1,13 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using GlobalEnums;
-
 namespace SmolKnight
 {
-   static class Utils{
+    static class Utils{
 
         public static void DebugLog(string s){
             if(false){ //make it false when not debugging

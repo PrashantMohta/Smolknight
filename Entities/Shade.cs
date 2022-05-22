@@ -1,15 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using GlobalEnums;
-using static SmolKnight.Utils;
-using static Satchel.GameObjectUtils;
-
 namespace SmolKnight
 {
-   static class Shade{
+    static class Shade{
         public static List<string> particleObjectNames = new List<string>{
             "Shade Particles",
             "Reform Particles",

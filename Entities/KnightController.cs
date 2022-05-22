@@ -1,50 +1,45 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using GlobalEnums;
-using HutongGames.PlayMaker.Actions;
-using Modding;
-using UnityEngine;
-
-
-namespace SmolKnight{
+namespace SmolKnight
+{
     public class KnightController : MonoBehaviour{
 
-        public DateTime lastCheckTime = DateTime.Now;    
-
-        private static void nextScale(){
-            if(!SmolKnight.saveSettings.enableSwitching || HKMP.isEnabledWithUserName()) { 
+        public DateTime lastCheckTime = DateTime.Now.AddMilliseconds(-5000); 
+ 
+        private static void nextScale() {
+            if(HKMP.isEnabledWithUserName()) { 
                 return;
             }
-
-            if(SmolKnight.currentScale == Size.SMOL){
-                SmolKnight.currentScale = Size.NORMAL;
-            } else if(SmolKnight.currentScale == Size.NORMAL){
-                SmolKnight.currentScale = Size.BEEG;
-            } else if(SmolKnight.currentScale == Size.BEEG){
-                SmolKnight.currentScale = Size.SMOL;
-            }
+            var i = Size.scales.FindIndex((item) => item == SmolKnight.currentScale);
+            do{
+                if(i < Size.scales.Count - 1 ){
+                    i++;
+                } else {
+                    i = 0;
+                }
+                if(PlayerDataPatcher.hasScale(Size.scales[i])){
+                    SmolKnight.currentScale = Size.scales[i];
+                    break;
+                }
+            } while(Size.scales[i] != SmolKnight.currentScale);
         }
         
         public void applyTransformation(){
-            if(HeroController.instance == null) { return; } 
+            if(HeroController.instance == null || GameManager.instance.isPaused) { 
+                lastCheckTime = DateTime.Now.AddMilliseconds(-5000);
+                return; 
+            } 
+            if(Knight.lastScale != SmolKnight.currentScale){
+                Knight.PlayTransformEffects();
+            }
             Knight.UpdateLocalPlayer();
-            Knight.PlayTransformEffects();
             SmolKnight.setSaveSettings();
             lastCheckTime = DateTime.Now;
         }
         public void Update(){
-            if(!SmolKnight.saveSettings.startupSelection && GameManager.instance.IsGameplayScene() && HeroController.instance.cState.onGround && Input.anyKey){
-                SmolKnight.startUpScreen();
-            }
-
-            if (SmolKnight.settings.keybinds.Transform.WasPressed || SmolKnight.settings.buttonbinds.Transform.WasPressed)
+            if (!GameManager.instance.isPaused && (SmolKnight.settings.keybinds.Transform.WasPressed || SmolKnight.settings.buttonbinds.Transform.WasPressed))
             {
                 nextScale();
-                ModMenu.RefreshOptions();
                 applyTransformation();
+                BetterMenu.UpdateMenu();
             }
             Knight.CheckRemotePlayers(false);
             var currentTime = DateTime.Now;

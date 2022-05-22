@@ -1,17 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using GlobalEnums;
-using HutongGames.PlayMaker.Actions;
-using static Satchel.FsmUtil;
 using static Modding.Logger;
-using static SmolKnight.Utils;
 
 namespace SmolKnight
 {
-   static class VignettePatcher{
+    static class VignettePatcher{
 
         private static List<(string,int,float)> LightAffectors = new List<(string, int,float)>()
         {

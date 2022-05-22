@@ -1,8 +1,5 @@
-using UnityEngine;
-using static Satchel.GameObjectUtils;
-using static SmolKnight.Utils;
-
-namespace SmolKnight{
+namespace SmolKnight
+{
     public static class SFX{
         private static AudioSource transformSource;
         public static void PlayTransformSound(){

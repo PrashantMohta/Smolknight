@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 4243929023
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: shaman
+      Dependencies: {}
+    Info_1:
+      Name: pathtosmol
+      Dependencies: {}

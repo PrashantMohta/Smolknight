@@ -1,0 +1,46 @@
+ManifestFileVersion: 0
+CRC: 2540987083
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 6372daca59e619a761a5205e5fc30c1c
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: daa1617c3e4f5775ecefae641877a315
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 61
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 82
+  Script: {instanceID: 0}
+- Class: 83
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 826562635, guid: 7430b36f528eb5145b38481af68d2e91, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 212
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/bruh_test.wav
+- Assets/Shaman NPC.prefab
+Dependencies: []

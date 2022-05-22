@@ -11,7 +11,7 @@
         <AssemblyName>SmolKnight</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>preview</LangVersion>
         <VanillaFiles>..\Vanilla</VanillaFiles>
         <ModdingAPi>..\HollowKnight.Modding\OutputFinal</ModdingAPi>
         <HollowKnightModsDirectory>..\linkedtoHKMods</HollowKnightModsDirectory>
@@ -102,9 +102,12 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+      <Compile Include="globalUsings.cs" />  
+
       <Compile Include="SmolKnight.cs" />
       <Compile Include="Properties\AssemblyInfo.cs" />
-      <Compile Include="Options\ModMenu.cs" />
+      <Compile Include="Options\BetterMenu.cs" />
+      <Compile Include="Options\BetterMenuHelpers.cs" />
       <Compile Include="Options\Settings.cs" />
 
       <Compile Include="Entities\KnightController.cs" />  
@@ -112,6 +115,7 @@
       <Compile Include="Entities\Shade.cs" />  
       <Compile Include="Entities\Shaman.cs" />  
 
+      <Compile Include="Items\*.cs" />  
 
       <Compile Include="Patch\ActionPatcher.cs" />        
       <Compile Include="Patch\GatePatcher.cs" />        
@@ -125,11 +129,10 @@
       <Compile Include="Helpers\Utils.cs" />
       <Compile Include="Helpers\SFX.cs" />
       <Compile Include="Helpers\Size.cs" />
-
       <Compile Include="Scenes\*.cs" />
-
       <EmbeddedResource Include="Resources\Scenes\*" />
       <EmbeddedResource Include="Resources\Characters\*" />
+      <EmbeddedResource Include="Assets\Images\*" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     

@@ -1,15 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-using Modding;
-using UnityEngine;
 
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
-using static SmolKnight.Utils;
 
 namespace SmolKnight
 {
@@ -36,10 +29,10 @@ namespace SmolKnight
         private static void ChangeDreamGateYPositionName(ILContext il)
         {
             ILCursor cursor = new ILCursor(il).Goto(0);;
-            while (cursor.TryGotoNext(instr => instr.MatchLdstr("dreamGateY")))  
+            while (cursor.TryGotoNext(instr => instr.MatchLdstr(PlayerDataPatcher.DREAMGATE_Y)))  
             {
                 cursor.Remove();
-                cursor.Emit(OpCodes.Ldstr, "SmolKnight.dreamGateY");
+                cursor.Emit(OpCodes.Ldstr, PlayerDataPatcher.SMOLKNIGHT_DREAMGATE_Y);
             }
         }
 
