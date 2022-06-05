@@ -2,12 +2,14 @@ namespace SmolKnight
 {
     public class SmolKnight:Mod,ICustomMenuMod,IGlobalSettings<GlobalModSettings>, ILocalSettings<SaveModSettings>
     {
-        public static Satchel.Core satchel = new Satchel.Core(); 
+        public static Satchel.Core satchel = new (); 
         public static SmolKnight Instance;
         public static GameObject KnightControllerGo;
         public static KnightController knightController;
+        public Dictionary<string, Dictionary<string, GameObject>> preloads;
+
+        public static Shaman shaman;
         public static float currentScale = Size.SMOL;
-        public Dictionary<string, Dictionary<string, GameObject>> preloaded;
         public static float GetCurrentScale(){
             return currentScale;
         }
@@ -59,12 +61,13 @@ namespace SmolKnight
            var customShinyManager = satchel.GetCustomShinyManager();
            var customBigItemGetManager = satchel.GetCustomBigItemGetManager();
 
-           customShinyManager.standPrefab = Instance.preloaded["Fungus2_14"]["Shiny Item Stand"];
-           customShinyManager.prefab = Instance.preloaded["Mines_29"]["Shiny Item"]; 
+            customShinyManager.standPrefab = Instance.preloads["Fungus2_14"]["Shiny Item Stand"];
+           customShinyManager.prefab = Instance.preloads["Mines_29"]["Shiny Item"]; 
            
-           customBigItemGetManager.Prepare(Instance.preloaded["Mines_29"]["Shiny Item"]);
-           // create all items that need to be added
-           new Smol(customShinyManager,customBigItemGetManager);
+           customBigItemGetManager.Prepare(Instance.preloads["Mines_29"]["Shiny Item"]);
+
+            // create all items that need to be added
+            new Smol(customShinyManager,customBigItemGetManager);
            new Beeg(customShinyManager,customBigItemGetManager);
         }
 
@@ -72,20 +75,71 @@ namespace SmolKnight
         {
             return BetterMenu.GetMenu(modListMenu);
         }
-        
+
+
         public override List<(string, string)> GetPreloadNames()
         {
             return new List<(string, string)>
             {
+                ("Fungus1_03", "_SceneManager"),
+                ("Fungus1_03","TileMap"),
+                ("White_Palace_03_hub", "WhiteBench"),
+                ("Cliffs_01","Cornifer Card"),
                 ("Fungus2_14", "Shiny Item Stand"),
                 ("Mines_29", "Shiny Item"),
-            };   
+                ("Fungus1_37","RestBench"),
+                ("GG_Broken_Vessel","Infected Knight"),
+                ("GG_Hornet_2","Boss Holder/Hornet Boss 2")
+            };
+        }
+
+        internal CustomDialogueManager customDialogueManager;
+        public GameObject CardPrefab;
+        private void CreateCustomDialogueManager(){
+            if(customDialogueManager == null){
+                customDialogueManager = satchel.GetCustomDialogueManager(CardPrefab);
+            }
+        }
+        internal CustomSaveSlotsManager customSaveSlotsManager;
+
+        public SmolKnight()
+        {
+            CreateCustomSaveSlotManager();
+            Scenes.PathToSmol.registerSaveSlotArt(customSaveSlotsManager);
+
+        }
+
+        private void CreateCustomSaveSlotManager()
+        {
+            if (customSaveSlotsManager == null)
+            {
+                customSaveSlotsManager = satchel.GetCustomSaveSlotsManager();
+            }
         }
         public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
         {
-            Instance = this;
-            preloaded = preloadedObjects;
-            prepareItems();
+            if (preloadedObjects != null) {
+
+                preloads = preloadedObjects;
+                Instance = this;
+                
+                //ideally we should have some strategy to this
+                Scenes.PathToSmol.getAssetBundle();
+                Scenes.PathToSmol.CreateScene();
+                Scenes.Boss1.getAssetBundle();
+                Scenes.Boss1.CreateScene();
+                
+                Scenes.Boss1.EnemyManager();
+
+                CardPrefab = preloads["Cliffs_01"]["Cornifer Card"];
+                CreateCustomDialogueManager();
+                CustomArrowPrompt.Prepare(CardPrefab);
+                shaman = new Shaman();
+                shaman.AddCustomDialogue(customDialogueManager);
+
+                prepareItems();
+            }
+
             IL.HeroController.Update10 += ILHooks.BypassCheckForKnightScaleRange;
             ILHooks.InitCustomHooks();
 
